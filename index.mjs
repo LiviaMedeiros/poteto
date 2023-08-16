@@ -46,18 +46,10 @@ const statsAsOptions = async statsOrError =>
     )
     .then($ => Object.assign($, { headers: adjustHeaders($) }));
 
-const getFileURL = (url, fileURL = null) => {
-  if (_params.persistCwd)
-    fileURL = new URL(url, cwdURL);
-  else 
-    try {
-      fileURL = new URL(url);
-    } catch {
-      fileURL = new URL(url, cwdURL);
-    }
-
-  return fileURL.protocol === 'file:' ? fileURL : url;
-};
+const getFileURL = (url, fileURL = null) =>
+  (fileURL = new URL(url, cwdURL)).protocol === 'file:'
+    ? fileURL
+    : url;
 
 const fileRequestURL = ([ resource, options ], url, request) => (
   resource instanceof Request
