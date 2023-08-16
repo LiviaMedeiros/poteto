@@ -7,7 +7,7 @@
 It can understand:
 
 - `URL` instance having `.protocol === 'file:'`
-- string or or any other object with a stringifier, such as:
+- string or any other object with a stringifier, such as:
   - absolute URL having `file` protocol, e.g. `file:///usr/bin/node`
   - relative URL having `file` protocol, e.g. `file:file.ext`, `file:../subdir/file.ext` [^RelativeFileURL]
   - relative URL, including:
@@ -142,7 +142,7 @@ However, some projections such as `GET` => `read file`, `ENOENT` => `404 Not Fou
 
 # Why there is `PUT` and `WRITE`
 
-Just to mirror `GET` and `READ`. They are different in same way, but there shouldn't be any benefits in using `WRITE`.
+Just to mirror `GET` and `READ`. They are different in the same way, but there shouldn't be any benefits in using `WRITE`.
 
 # Why is it called like that
 
