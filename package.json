@@ -1,6 +1,6 @@
 {
   "name": "poteto",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "HTTP-alike fetch for FILE protocol, e.g. fetch('file:///usr/bin/node')",
   "type": "module",
   "exports": "./index.mjs",
@@ -16,12 +16,12 @@
     "url": "git+https://github.com/LiviaMedeiros/poteto.git"
   },
   "keywords": [
-    "node",
+    "nodejs",
     "fetch",
-    "fs",
     "URL",
-    "file",
-    "http"
+    "http",
+    "fs",
+    "file"
   ],
   "author": {
     "name": "LiviaMedeiros",
