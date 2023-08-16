@@ -1,0 +1,33 @@
+{
+  "name": "poteto",
+  "version": "0.0.1",
+  "description": "HTTP-alike fetch for FILE protocol, e.g. fetch('file:///usr/bin/node')",
+  "type": "module",
+  "exports": "./index.mjs",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LiviaMedeiros/poteto.git"
+  },
+  "keywords": [
+    "node",
+    "fetch",
+    "fs",
+    "URL",
+    "file",
+    "http"
+  ],
+  "author": {
+    "name": "LiviaMedeiros",
+    "email": "livia@cirno.name",
+    "url": "https://github.com/LiviaMedeiros"
+  },
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/LiviaMedeiros/poteto/issues"
+  },
+  "homepage": "https://github.com/LiviaMedeiros/poteto#readme"
+}
