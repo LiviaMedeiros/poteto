@@ -111,6 +111,11 @@ test('sequence', async t => {
   resp = await poteto(_(), { body: bodygen(), method: 'WRITE', duplex: 'half' });
   validate(resp, { status: 201 });
 
+  resp = await poteto(`${_()}${'a'.repeat(2 ** 16)}`, { headers: { 'Accept': 'application/json' } });
+  validate(resp, { status: 400 }, { 'x-test-code': 'ENAMETOOLONG' });
+  json = await resp.json();
+  assert.strictEqual(json.code, 'ENAMETOOLONG');
+
   resp = await poteto(_(), { integrity: 'sha256-uvThdKYK8fCnhkKy2981+29g4O/6OEoSLNsi/VXPIWU=' });
   validate(resp, { status: 200 }, { 'x-test-size': '20' });
   text = await resp.text();
