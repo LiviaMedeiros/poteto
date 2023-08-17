@@ -13,15 +13,17 @@ import {
   STAT_OPTS,
   READDIR_OPTS,
 } from './lib/constants.mjs';
+import {
+  errorAsUndefined,
+  requestConstructor,
+  responseConstructor,
+} from './lib/generic.mjs';
 
 const _params = Object.fromEntries(new URL(import.meta.url).searchParams.entries());
 const cwdURL = _params.persistCwd
   ? pathToFileURL(cwd() + sep).href
   : { [Symbol.toPrimitive]: () => pathToFileURL(cwd() + sep).href };
 const PREFIX = `X-${_params.prefix ?? 'POTETO'}-`;
-
-const requestConstructor = Reflect.construct.bind(Reflect, Request);
-const responseConstructor = Reflect.construct.bind(Reflect, Response);
 
 const adjustHeaders = ({ headers }) =>
   new Headers([
@@ -33,7 +35,6 @@ const adjustHeaders = ({ headers }) =>
 
     // TODO: Etag?
     // TODO: Content-Type?
-    // TODO: Location for symlinks based on redirect option?
     ['Content-Length', headers.size],
     ['Last-Modified', headers.mtime?.toUTCString()],
   ].filter(([$, _]) => _ !== undefined));
@@ -56,6 +57,29 @@ const fileRequestURL = ([ resource, options ], url, request) => (
     ? url = new URL((request = new Request(getFileURL(resource.url), options)).url)
     : request = new Request(url = getFileURL(resource), options),
   { request, url });
+
+const blockingHooks = [
+  // if request.redirect is not follow,
+  async (url, { redirect }) => {
+    if (redirect === 'follow')
+      return;
+    const target = await fs.readlink(url).then(pathToFileURL, errorAsUndefined);
+    if (!target)
+      return;
+    if (redirect === 'error')
+      throw new TypeError(`Got symlink: ${url} -> ${target}`);
+    // redirect === 'manual'
+    return genericResponse(302, { headers: { 'Location': target } });
+  },
+];
+
+const preHooks = async (url, request) => {
+  for (const hook of blockingHooks) {
+    const response = await hook(url, request);
+    if (response)
+      return response;
+  }
+};
 
 const methods = new Map([
   // HTTP-alike methods
@@ -109,6 +133,7 @@ const methods = new Map([
 ]);
 
 const executeRequest = async (url, request) =>
+  await preHooks(url, request) ??
   (methods.get(request.method) ?? (() => genericResponse(405)))(url, request);
 
 export default new Proxy(fetch, {
