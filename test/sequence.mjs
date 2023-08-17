@@ -4,51 +4,47 @@ import poteto from '../index.mjs?prefix=test';
 import assert from 'node:assert';
 import test from 'node:test';
 
+chdir(fileURLToPath(new URL('../testdir/sequence/', import.meta.url)));
+
+let _i = 0;
+const bodygen = async function*(n = 10, pause = 9) {
+  while (n--) {
+    yield `${_i++}`;
+    await new Promise(_ => setTimeout(_, pause));
+  }
+}
+
+const validate = (actual, expected = {}, headers = {}) => {
+  assert.ok(actual instanceof Response, `${actual} is not Response`);
+
+  const ago = new Date() - new Date(actual.headers.get('Date'));
+  assert.ok(ago >= 0, `got Date ${ago} ms in future`);
+  assert.ok(ago <= 9999, `got Date ${ago} ms ago`);
+
+  assert.strictEqual(actual.headers.get('Server'), 'POTETO');
+
+  Object.entries(expected).forEach(([key, value]) =>
+    assert.strictEqual(actual[key], value)
+  );
+
+   Object.entries(headers).forEach(([key, value]) =>
+    assert.strictEqual(actual.headers.get(key), value)
+  );
+}
+
+const filename = `deleteme-${Math.random()}`;
+const relativeURL = `./${filename}`;
+const absoluteURL = new URL(`../testdir/sequence/${relativeURL}`, import.meta.url);
+const href = absoluteURL.href;
+
+const _ = ($ = filename) => [
+  filename => filename,
+  filename => `./${filename}`,
+  filename => new URL(`../testdir/sequence/./${filename}`, import.meta.url),
+  filename => new URL(`../testdir/sequence/./${filename}`, import.meta.url).href,
+][Math.floor(Math.random() * 4)]($);
+
 test('sequence', async t => {
-  const churl = new URL('../testdir', import.meta.url);
-  churl.pathname += '/';
-  chdir(fileURLToPath(churl));
-
-  let _i = 0;
-  const bodygen = async function*(n = 10, pause = 9) {
-    while (n--) {
-      yield `${_i++}`;
-      await new Promise(_ => setTimeout(_, pause));
-    }
-  }
-
-  const bodyfunc = bodygen();
-
-  const validate = (actual, expected = {}, headers = {}) => {
-    assert.ok(actual instanceof Response);
-
-    const ago = new Date() - new Date(actual.headers.get('Date'));
-    assert.ok(ago >= 0);
-    assert.ok(ago <= 999);
-
-    assert.strictEqual(actual.headers.get('Server'), 'POTETO');
-
-    Object.entries(expected).forEach(([key, value]) =>
-      assert.strictEqual(actual[key], value)
-    );
-
-     Object.entries(headers).forEach(([key, value]) =>
-      assert.strictEqual(actual.headers.get(key), value)
-    );
-  }
-
-  const filename = `deleteme-${Math.random()}`;
-  const relativeURL = `./${filename}`;
-  const absoluteURL = new URL(`../testdir/${relativeURL}`, import.meta.url);
-  const href = absoluteURL.href;
-  
-  const _ = () => [
-    filename,
-    relativeURL,
-    absoluteURL,
-    href,
-  ][Math.floor(Math.random() * 4)];
-
   let resp;
   let text;
   let json;
