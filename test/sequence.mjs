@@ -21,7 +21,7 @@ const validate = (actual, expected = {}, headers = {}) => {
   assert.ok(ago >= 0, `got Date ${ago} ms in future`);
   assert.ok(ago <= 9999, `got Date ${ago} ms ago`);
 
-  assert.strictEqual(actual.headers.get('Server'), 'POTETO');
+  assert.strictEqual(actual.headers.get('Server'), 'poteto');
 
   Object.entries(expected).forEach(([key, value]) =>
     assert.strictEqual(actual[key], value)
