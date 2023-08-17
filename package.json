@@ -1,6 +1,6 @@
 {
   "name": "poteto",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "HTTP-alike fetch for FILE protocol, e.g. fetch('file:///usr/bin/node')",
   "type": "module",
   "exports": "./index.mjs",
