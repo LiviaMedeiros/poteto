@@ -88,6 +88,12 @@ import poteto from 'poteto';
   const mtimeTemporal = new Temporal.Instant(headers.get('X-Poteto-MtimeNs'));
 }
 
+// get symlink destination using manual redirect
+{
+  const { headers } = await poteto('/etc/mtab', { redirect: 'manual' });
+  const location = headers.get('Location');
+}
+
 // get errors as JSON
 {
   const errorInfo = await poteto('file:///non/existent/path', {
