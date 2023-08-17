@@ -132,7 +132,9 @@ Right now `file` protocol is not standartized, and HTTP entities such as status 
 
 However, some projections such as `GET` => `read file`, `ENOENT` => `404 Not Found`, `Accept: application/json` => `return data as json` are intuitive enough to be implemented.
 
-# Why there is `GET` and `READ`
+# FAQ
+
+## Why there is `GET` and `READ`
 
 `GET` loads the whole file in memory before responding. This might be significantly faster, but also means that getting 1Gb file will require >1Gb of memory to be used, no matter what.
 
@@ -140,13 +142,17 @@ However, some projections such as `GET` => `read file`, `ENOENT` => `404 Not Fou
 
 ~~Also `READ` leaks filehandles.~~
 
-# Why there is `PUT` and `WRITE`
+## Why there is `PUT` and `WRITE`
 
 Just to mirror `GET` and `READ`. They are different in the same way, but there shouldn't be any benefits in using `WRITE`.
 
-# Why is it called like that
+## Why is it called like that
 
 No particular reason.
+
+## Can this be used in production
+
+Think twice.
 
 # License
 
