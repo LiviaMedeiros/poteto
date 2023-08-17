@@ -144,9 +144,13 @@ However, some projections such as `GET` => `read file`, `ENOENT` => `404 Not Fou
 
 `GET` loads the whole file in memory before responding. This might be significantly faster, but also means that getting 1Gb file will require >1Gb of memory to be used, no matter what.
 
+Also `GET` supports SRI[^SRI] and might support other features that require checking file body (e.g. magic to determine `Content-Type`).
+
 `READ` is stream-based. If the file body might not be consumed, or consumed partially, or consumed chunk-by-chunk, it will not allocate unnecessarily big amounts of memory.
 
 ~~Also `READ` leaks filehandles.~~
+
+[^SRI]: [Subresource Integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity)
 
 ## Why there is `PUT` and `WRITE`
 

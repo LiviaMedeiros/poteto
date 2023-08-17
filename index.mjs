@@ -18,6 +18,9 @@ import {
   requestConstructor,
   responseConstructor,
 } from './lib/generic.mjs';
+import {
+  validatedBody,
+} from './lib/sri.mjs';
 
 const _params = Object.fromEntries(new URL(import.meta.url).searchParams.entries());
 const cwdURL = _params.persistCwd
@@ -83,9 +86,9 @@ const preHooks = async (url, request) => {
 
 const methods = new Map([
   // HTTP-alike methods
-  ['GET', (url, { signal }) =>
+  ['GET', (url, { integrity, signal }) =>
     Promise.all([
-      fs.readFile(url, { signal }),
+      fs.readFile(url, { signal }).then($ => validatedBody(integrity, $)),
       statsAsOptions(fs.stat(url, STAT_OPTS))
     ]).then(responseConstructor)],
   ['HEAD', url =>

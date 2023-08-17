@@ -76,7 +76,12 @@ test('sequence', async t => {
   resp = await poteto(_(), { body: 'test', method: 'PUT' });
   validate(resp, { status: 201 });
 
-  resp = await poteto(_());
+  assert.rejects(
+    poteto(_(), { integrity: 'sha512-qUqP5cyxm6YcTAhz05Hph5gvu9M=' }),
+    TypeError,
+  );
+
+  resp = await poteto(_(), { integrity: 'sha1-qUqP5cyxm6YcTAhz05Hph5gvu9M=' });
   validate(resp, { status: 200 }, { 'x-test-size': '4' });
   text = await resp.text();
   assert.strictEqual(text, 'test');
@@ -84,7 +89,7 @@ test('sequence', async t => {
   resp = await poteto(_(), { body: bodygen(), method: 'PUT', duplex: 'half' });
   validate(resp, { status: 201 });
 
-  resp = await poteto(_());
+  resp = await poteto(_(), { integrity: 'sha384-kK5THyTkhpeQSk0ChvNUxQo1DrtsK578si9xyWzq7/wRxglenKDfDsML9oXc8uXl' });
   validate(resp, { status: 200 }, { 'x-test-size': '10' });
   text = await resp.text();
   assert.strictEqual(text, '0123456789');
@@ -98,7 +103,7 @@ test('sequence', async t => {
   resp = await poteto(_(), { method: 'WRITE' });
   validate(resp, { status: 422 });
 
-  resp = await poteto(_());
+  resp = await poteto(_(), { integrity: 'sha512-7iaw3Ur350mqGo7jwQrpkj9hiYB3Lkc/iBml1JQODbJ6wYX4oOHV+E+IvIh/1nsUNzLDBMxfqa2Ob1f1ACio/w==' });
   validate(resp, { status: 200 }, { 'x-test-size': '4' });
   text = await resp.text();
   assert.strictEqual(text, 'test');
@@ -106,7 +111,7 @@ test('sequence', async t => {
   resp = await poteto(_(), { body: bodygen(), method: 'WRITE', duplex: 'half' });
   validate(resp, { status: 201 });
 
-  resp = await poteto(_());
+  resp = await poteto(_(), { integrity: 'sha256-uvThdKYK8fCnhkKy2981+29g4O/6OEoSLNsi/VXPIWU=' });
   validate(resp, { status: 200 }, { 'x-test-size': '20' });
   text = await resp.text();
   assert.strictEqual(text, '10111213141516171819');
