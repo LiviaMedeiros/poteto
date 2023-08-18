@@ -50,6 +50,16 @@ import poteto from 'poteto';
   const { body } = await poteto('/dev/urandom', { method: 'READ' });
 }
 
+// read file ranges and validate result using SRI
+{
+  const text = await poteto('./node_modules/poteto/LICENSE', {
+    headers: {
+      'Range': 'bytes=34264-34266,17303-17304,19991-19991',
+    },
+    integrity: 'sha512-pmndJoYi4kwRRbKcFCVXRnwT0nF/4d73zYKnqredfUIhfKddjRqL3Zbi+CjjkyMIX2e2HQEkV89kZeWdhj1MJQ==',
+  }).then(r => r.text());
+}
+
 // write files with PUT
 {
   const { status } = await poteto('file:./new_file.txt', {
