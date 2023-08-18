@@ -42,11 +42,11 @@ const adjustHeaders = ({ headers }) =>
     ['Last-Modified', headers.mtime?.toUTCString()],
   ].filter(([$, _]) => _ !== undefined));
 
-const statsAsOptions = async statsOrError =>
+const statsAsOptions = async (statsOrError, { status } = {}) =>
   Promise.resolve(statsOrError)
     .then(
-      headers => ({ ...errAsStatus(headers), headers }),
-      headers => ({ ...errAsStatus(headers), headers })
+      headers => ({ ...errAsStatus(headers, status), headers }),
+      headers => ({ ...errAsStatus(headers, status), headers })
     )
     .then($ => Object.assign($, { headers: adjustHeaders($) }));
 
@@ -86,22 +86,74 @@ const preHooks = async (url, request) => {
 
 const methods = new Map([
   // HTTP-alike methods
-  ['GET', (url, { integrity, signal }) =>
-    Promise.all([
-      fs.readFile(url, { signal }).then($ => validatedBody(integrity, $)),
-      statsAsOptions(fs.stat(url, STAT_OPTS))
-    ]).then(responseConstructor)],
-  ['HEAD', url =>
+  ['GET', async (url, { headers, integrity, signal }) => {
+    const stats = await fs.stat(url, STAT_OPTS);
+    const { size } = stats;
+
+    const ranges = headers.get('Range')?.split(';')[0].split('=')[1].split(',').map($ => $.trim());
+
+    return ranges
+      ? Promise.all(
+          ranges.map(
+            async $ => {
+              let [start, end] = $.split('-').map($ => $ === '' ? null : BigInt($));
+              end ??= size - 1n;
+              start ?? (start = size - end, end = size - 1n);
+
+              if (end > size - 1n)
+                throw new RangeError(`end (${end}) exceeds size (${size}) - 1`);
+              if (start < 0n)
+                throw new RangeError(`start (${start}) less than 0`);
+              if (start > end)
+                throw new RangeError(`start (${start}) more than end (${end})`);
+
+              const length = Number(end - start + 1n);
+              const position = Number(start);
+
+              let fd;
+              try {
+                fd = await fs.open(url);
+                return fd.read(new Uint8Array(length), {
+                  length,
+                  position,
+                }).then(({ buffer }) => buffer);
+              } finally {
+                await fd?.[Symbol.asyncDispose]();
+              }
+            }
+          )
+        )
+          .then($ => validatedBody(integrity, $))
+          .then(
+            async body => [
+              body,
+              await statsAsOptions(
+                Object.assign(stats, { size: BigInt(body.byteLength) }),
+                { status: 206 }
+              ),
+            ]
+          )
+          .then(responseConstructor)
+          .catch($ => $ instanceof RangeError
+            ? genericResponse(416)
+            : Promise.reject($)
+          )
+      : Promise.all([
+        fs.readFile(url, { signal }).then($ => validatedBody(integrity, [$])),
+        statsAsOptions(stats),
+      ]).then(responseConstructor);
+  }],
+  ['HEAD', async url =>
     statsAsOptions(fs.stat(url, STAT_OPTS)).then($ => new Response(null, $))],
-  ['PUT', (url, { body, signal }) =>
+  ['PUT', async (url, { body, signal }) =>
     body
       ? fs.writeFile(url, body, { signal }).then(() => genericResponse(201))
       : genericResponse(422)],
-  ['DELETE', url =>
+  ['DELETE', async url =>
     fs.rm(url).then(() => genericResponse(204))],
 
   // POTETO methods
-  ['READ', (url, { signal }) =>
+  ['READ', async (url, { signal }) =>
     fs.open(url).then(async fd =>
       new Response(
         // this should close fd... somehow
@@ -110,17 +162,17 @@ const methods = new Map([
         await statsAsOptions(fd.stat(STAT_OPTS))
       )
     )],
-  ['WRITE', (url, { body, signal }) =>
+  ['WRITE', async (url, { body, signal }) =>
     body instanceof ReadableStream
       ? fs.open(url, 'w')
           .then(fd => body.pipeTo(Writable.toWeb(fd.createWriteStream()), { signal }))
           .then(() => genericResponse(201))
       : genericResponse(422)],
-  ['APPEND', (url, { body, signal }) =>
+  ['APPEND', async (url, { body, signal }) =>
     body
       ? fs.appendFile(url, body, { signal }).then(() => genericResponse(201))
       : genericResponse(422)],
-  ['LIST', url =>
+  ['LIST', async url =>
     fs.readdir(url, READDIR_OPTS).then(async $ =>
       Response.json(
         $.map($ => `${$.name}${$.isDirectory() ? '/' : ''}`),
@@ -129,15 +181,16 @@ const methods = new Map([
     )],
 
   // unsupported HTTP-alike methods
-  ['POST', () => genericResponse(501)],
-  ['CONNECT', () => genericResponse(501)],
-  ['OPTIONS', () => genericResponse(501)],
-  ['TRACE', () => genericResponse(501)],
+  ['POST', async () => genericResponse(501)],
+  ['CONNECT', async () => genericResponse(501)],
+  ['OPTIONS', async () => genericResponse(501)],
+  ['TRACE', async () => genericResponse(501)],
 ]);
 
 const executeRequest = async (url, request) =>
   await preHooks(url, request) ??
-  (methods.get(request.method) ?? (() => genericResponse(405)))(url, request);
+  (methods.get(request.method) ??
+  (async () => genericResponse(405)))(url, request);
 
 export default new Proxy(fetch, {
   async apply(target, thisArg, argumentsList) {
