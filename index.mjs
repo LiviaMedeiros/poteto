@@ -139,9 +139,9 @@ const methods = new Map([
             : Promise.reject($)
           )
       : Promise.all([
-        fs.readFile(url, { signal }).then($ => validatedBody(integrity, [$])),
-        statsAsOptions(stats),
-      ]).then(responseConstructor);
+          fs.readFile(url, { signal }).then($ => validatedBody(integrity, [$])),
+          statsAsOptions(stats),
+        ]).then(responseConstructor);
   }],
   ['HEAD', async url =>
     statsAsOptions(fs.stat(url, STAT_OPTS)).then($ => new Response(null, $))],
