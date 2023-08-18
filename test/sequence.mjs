@@ -94,6 +94,32 @@ test('sequence', async t => {
   text = await resp.text();
   assert.strictEqual(text, '0123456789');
 
+  resp = await poteto(_(), { headers: { 'Range': 'bytes=1-3,5-5,7-8'} });
+  validate(resp, { status: 206 }, { 'x-test-size': '6' });
+  text = await resp.text();
+  assert.strictEqual(text, '123578');
+
+  resp = await poteto(_(), { headers: { 'Range': 'bytes=1-2,4-5,7-7'}, integrity: 'sha1-db3ms9F0w5Sozo0ZTj6GiLCmM+A=' });
+  validate(resp, { status: 206 }, { 'x-test-size': '5' });
+  text = await resp.text();
+  assert.strictEqual(text, '12457');
+
+  resp = await poteto(_(), { headers: { 'Range': 'bytes=5-'} });
+  validate(resp, { status: 206 }, { 'x-test-size': '5' });
+  text = await resp.text();
+  assert.strictEqual(text, '56789');
+
+  resp = await poteto(_(), { headers: { 'Range': 'bytes=-3'} });
+  validate(resp, { status: 206 }, { 'x-test-size': '3' });
+  text = await resp.text();
+  assert.strictEqual(text, '789');
+
+  resp = await poteto(_(), { headers: { 'Range': 'bytes=99-999'} });
+  validate(resp, { status: 416 });
+
+  resp = await poteto(_(), { headers: { 'Range': 'bytes=5-3'} });
+  validate(resp, { status: 416 });
+
   resp = await poteto(_(), { method: 'DELETE' });
   validate(resp, { status: 204 });
 
