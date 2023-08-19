@@ -21,6 +21,10 @@ import {
 import {
   validatedBody,
 } from './lib/sri.mjs';
+import {
+  readRange,
+  writeRange,
+} from './lib/fs.mjs';
 
 const _params = Object.fromEntries(new URL(import.meta.url).searchParams.entries());
 const cwdURL = _params.persistCwd
@@ -84,79 +88,64 @@ const preHooks = async (url, request) => {
   }
 };
 
+const GET = async (url, { headers, integrity, signal }) => {
+  const stats = await fs.stat(url, STAT_OPTS);
+  const { size } = stats;
+
+  const ranges = headers.get('Range')?.split(';')[0].split('=')[1].split(',').map($ => $.trim());
+
+  return ranges
+    ? Promise.all(ranges.map(range => readRange(range, size, url)))
+        .then($ => validatedBody(integrity, $))
+        .then(
+          async body => [
+            body,
+            await statsAsOptions(
+              Object.assign(stats, { size: BigInt(body.byteLength) }),
+              { status: 206 }
+            ),
+          ]
+        )
+        .then(responseConstructor)
+        .catch($ => $ instanceof RangeError
+          ? genericResponse(416)
+          : Promise.reject($)
+        )
+    : Promise.all([
+        fs.readFile(url, { signal }).then($ => validatedBody(integrity, [$])),
+        statsAsOptions(stats),
+      ]).then(responseConstructor);
+};
+
+const HEAD = async url =>
+  statsAsOptions(fs.stat(url, STAT_OPTS)).then($ => new Response(null, $));
+
+const PUT = async (url, { body, headers, signal }) => {
+    const range = headers.get('Range')?.split(';')[0].split('=')[1].split(',')[0].trim();
+
+    return range
+      ? writeRange(range, url, body)
+      : fs.writeFile(url, body, { signal });
+}
+
+const DELETE = async url =>
+  fs.rm(url).then(() => genericResponse(204));
+
 const methods = new Map([
   // HTTP-alike methods
-  ['GET', async (url, { headers, integrity, signal }) => {
-    const stats = await fs.stat(url, STAT_OPTS);
-    const { size } = stats;
-
-    const ranges = headers.get('Range')?.split(';')[0].split('=')[1].split(',').map($ => $.trim());
-
-    return ranges
-      ? Promise.all(
-          ranges.map(
-            async $ => {
-              let [start, end] = $.split('-').map($ => $ === '' ? null : BigInt($));
-              end ??= size - 1n;
-              start ?? (start = size - end, end = size - 1n);
-
-              if (end > size - 1n)
-                throw new RangeError(`end (${end}) exceeds size (${size}) - 1`);
-              if (start < 0n)
-                throw new RangeError(`start (${start}) less than 0`);
-              if (start > end)
-                throw new RangeError(`start (${start}) more than end (${end})`);
-
-              const length = Number(end - start + 1n);
-              const position = Number(start);
-
-              let fd;
-              try {
-                fd = await fs.open(url);
-                return fd.read(new Uint8Array(length), {
-                  length,
-                  position,
-                }).then(({ buffer }) => buffer);
-              } finally {
-                await fd?.[Symbol.asyncDispose]();
-              }
-            }
-          )
-        )
-          .then($ => validatedBody(integrity, $))
-          .then(
-            async body => [
-              body,
-              await statsAsOptions(
-                Object.assign(stats, { size: BigInt(body.byteLength) }),
-                { status: 206 }
-              ),
-            ]
-          )
-          .then(responseConstructor)
-          .catch($ => $ instanceof RangeError
-            ? genericResponse(416)
-            : Promise.reject($)
-          )
-      : Promise.all([
-          fs.readFile(url, { signal }).then($ => validatedBody(integrity, [$])),
-          statsAsOptions(stats),
-        ]).then(responseConstructor);
-  }],
-  ['HEAD', async url =>
-    statsAsOptions(fs.stat(url, STAT_OPTS)).then($ => new Response(null, $))],
-  ['PUT', async (url, { body, signal }) =>
+  ['GET', GET],
+  ['HEAD', HEAD],
+  ['PUT', async (url, { body, headers, signal }) =>
     body
-      ? fs.writeFile(url, body, { signal }).then(() => genericResponse(201))
+      ? PUT(url, { body, headers, signal }).then(() => genericResponse(201))
       : genericResponse(422)],
-  ['DELETE', async url =>
-    fs.rm(url).then(() => genericResponse(204))],
+  ['DELETE', DELETE],
 
   // POTETO methods
   ['READ', async (url, { signal }) =>
     fs.open(url).then(async fd =>
       new Response(
-        // this should close fd... somehow
+        // fd must be closed someow after the stream is consumed
         fd.readableWebStream({ type: 'bytes' }),
         //Readable.toWeb(fd.createReadStream({ signal })),
         await statsAsOptions(fd.stat(STAT_OPTS))
@@ -204,7 +193,8 @@ const handler = {
                   ? Response.json(err, opts)
                   : new Response(err.message, opts))
               : Promise.reject(err)
-          ))
+          )
+        )
       : Reflect.apply(target, thisArg, argumentsList);
   },
 };
