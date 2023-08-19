@@ -11,6 +11,7 @@ const [,,...urls] = process.argv;
 // chunks from different files may come in arbitrary order
 // low memory footprint
 // READ method will be used even for remote addresses
+// eslint-disable-next-line no-unused-vars
 const catConcurrent = urls =>
   Promise.all(urls.map(url =>
     poteto(url, { method: 'READ' }).then(printResponse)

@@ -33,9 +33,6 @@ const validate = (actual, expected = {}, headers = {}) => {
 }
 
 const filename = `deleteme-${Math.random()}`;
-const relativeURL = `./${filename}`;
-const absoluteURL = new URL(`../testdir/sequence/${relativeURL}`, import.meta.url);
-const href = absoluteURL.href;
 
 const _ = ($ = filename) => [
   filename => filename,
@@ -44,7 +41,7 @@ const _ = ($ = filename) => [
   filename => new URL(`../testdir/sequence/./${filename}`, import.meta.url).href,
 ][Math.floor(Math.random() * 4)]($);
 
-test('sequence', async t => {
+test('sequence', async () => {
   let resp;
   let text;
   let json;

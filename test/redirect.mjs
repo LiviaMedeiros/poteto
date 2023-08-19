@@ -7,9 +7,6 @@ import test from 'node:test';
 chdir(fileURLToPath(new URL('../testdir/redirect/', import.meta.url)));
 
 const filename = `deleteme-${Math.random()}`;
-const relativeURL = `./${filename}`;
-const absoluteURL = new URL(`../testdir/redirect/${relativeURL}`, import.meta.url);
-const href = absoluteURL.href;
 
 const _ = ($ = filename) => [
   filename => filename,
@@ -18,7 +15,7 @@ const _ = ($ = filename) => [
   filename => new URL(`../testdir/redirect/./${filename}`, import.meta.url).href,
 ][Math.floor(Math.random() * 4)]($);
 
-test('redirect', async t => {
+test('redirect', async () => {
   let resp;
   let text;
   let json;
