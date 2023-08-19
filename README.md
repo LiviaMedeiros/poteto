@@ -1,4 +1,5 @@
 [![npm](https://img.shields.io/npm/v/poteto.svg)](https://npmjs.com/package/poteto)
+[![CI](https://github.com/LiviaMedeiros/poteto/actions/workflows/github-ci.yml/badge.svg)](https://github.com/LiviaMedeiros/poteto/actions/workflows/github-ci.yml)
 
 # poteto
 
