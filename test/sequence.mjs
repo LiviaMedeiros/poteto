@@ -123,6 +123,9 @@ test('sequence', async t => {
   resp = await poteto(_(), { method: 'DELETE' });
   validate(resp, { status: 204 });
 
+  resp = await poteto(_(), { headers: { 'Range': 'bytes=1-2,4-5,7-7'}, integrity: 'sha1-db3ms9F0w5Sozo0ZTj6GiLCmM+A=' });
+  validate(resp, { status: 404 });
+
   resp = await poteto(_(), { body: 'test', method: 'WRITE' });
   validate(resp, { status: 201 });
 
