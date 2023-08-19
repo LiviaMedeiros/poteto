@@ -223,6 +223,22 @@ test('sequence', async t => {
     assert.strictEqual(result.done, true);
   }
 
+  resp = await poteto(_(), { method: 'PUT', body: bodygen(999), headers: { 'Range': 'bytes=5-15' }, duplex: 'half' });
+  validate(resp, { status: 201 });
+
+  resp = await poteto(_());
+  validate(resp, { status: 200 }, { 'x-test-size': '40' });
+  text = await resp.text();
+  assert.strictEqual(text, '2021240414243444282930313233343536373839');
+
+  resp = await poteto(_(), { method: 'PUT', body: bodygen(), headers: { 'Range': 'bytes=27-' }, duplex: 'half' });
+  validate(resp, { status: 201 });
+
+  resp = await poteto(_());
+  validate(resp, { status: 200 }, { 'x-test-size': '47' });
+  text = await resp.text();
+  assert.strictEqual(text, '20212404142434442829303132347484950515253545556');
+
   await new Promise(_ => setTimeout(_, 9));
 
   resp = await poteto(_(), { method: 'DELETE' });
