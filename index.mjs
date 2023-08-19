@@ -61,6 +61,9 @@ const fileRequestURL = ([ resource, options ], url, request) => (
     : request = new Request(url = getFileURL(resource), options),
   { request, url });
 
+const DELETE = async url =>
+  fs.rm(url).then(() => genericResponse(204));
+
 const GET = async (url, { headers, integrity, signal }) => {
   const stats = await fs.stat(url, STAT_OPTS);
   const { size } = stats;
@@ -107,18 +110,26 @@ const POSTorPUT = async (url, { body, headers, method, signal }) => {
   ).then(() => genericResponse(201));
 };
 
-const DELETE = async url =>
-  fs.rm(url).then(() => genericResponse(204));
-
 const methods = new Map([
   // HTTP-alike methods
+  ['DELETE', DELETE],
   ['GET', GET],
   ['HEAD', HEAD],
   ['POST', POSTorPUT],
   ['PUT', POSTorPUT],
-  ['DELETE', DELETE],
 
   // POTETO methods
+  ['APPEND', async (url, { body, signal }) =>
+    body
+      ? fs.appendFile(url, body, { signal }).then(() => genericResponse(201))
+      : genericResponse(422)],
+  ['LIST', async url =>
+    fs.readdir(url, READDIR_OPTS).then(async $ =>
+      Response.json(
+        $.map($ => `${$.name}${$.isDirectory() ? '/' : ''}`),
+        await statsAsOptions(fs.stat(url, STAT_OPTS))
+      )
+    )],
   ['READ', async url =>
     fs.open(url).then(async fd =>
       new Response(
@@ -134,17 +145,6 @@ const methods = new Map([
         .then(fd => body.pipeTo(Writable.toWeb(fd.createWriteStream()), { signal }))
         .then(() => genericResponse(201))
       : genericResponse(422)],
-  ['APPEND', async (url, { body, signal }) =>
-    body
-      ? fs.appendFile(url, body, { signal }).then(() => genericResponse(201))
-      : genericResponse(422)],
-  ['LIST', async url =>
-    fs.readdir(url, READDIR_OPTS).then(async $ =>
-      Response.json(
-        $.map($ => `${$.name}${$.isDirectory() ? '/' : ''}`),
-        await statsAsOptions(fs.stat(url, STAT_OPTS))
-      )
-    )],
 
   // unsupported HTTP-alike methods
   ['CONNECT', async () => genericResponse(501)],
