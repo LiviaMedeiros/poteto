@@ -70,6 +70,12 @@ test('sequence', async () => {
   json = await resp.json();
   assert.strictEqual(json.code, 'ENOENT');
 
+  resp = await poteto(_(), { body: 'test', method: 'POST' });
+  validate(resp, { status: 404 });
+
+  resp = await poteto(_());
+  validate(resp, { status: 404 });
+
   resp = await poteto(_(), { body: 'test', method: 'PUT' });
   validate(resp, { status: 201 });
 
@@ -189,7 +195,7 @@ test('sequence', async () => {
   text = await resp.text();
   assert.strictEqual(text, '');
 
-  resp = await poteto(_(), { method: 'POST' });
+  resp = await poteto(_(), { method: 'OPTIONS' });
   validate(resp, { status: 501 });
 
   resp = await poteto(_(), { method: 'METHODNOTEXISTS' });
@@ -220,7 +226,7 @@ test('sequence', async () => {
     assert.strictEqual(result.done, true);
   }
 
-  resp = await poteto(_(), { method: 'PUT', body: bodygen(999), headers: { 'Range': 'bytes=5-15' }, duplex: 'half' });
+  resp = await poteto(_(), { method: 'POST', body: bodygen(999), headers: { 'Range': 'bytes=5-15' }, duplex: 'half' });
   validate(resp, { status: 201 });
 
   resp = await poteto(_());
@@ -228,13 +234,21 @@ test('sequence', async () => {
   text = await resp.text();
   assert.strictEqual(text, '2021240414243444282930313233343536373839');
 
-  resp = await poteto(_(), { method: 'PUT', body: bodygen(), headers: { 'Range': 'bytes=27-' }, duplex: 'half' });
+  resp = await poteto(_(), { method: 'POST', body: bodygen(), headers: { 'Range': 'bytes=27-' }, duplex: 'half' });
   validate(resp, { status: 201 });
 
   resp = await poteto(_());
   validate(resp, { status: 200 }, { 'x-test-size': '47' });
   text = await resp.text();
   assert.strictEqual(text, '20212404142434442829303132347484950515253545556');
+
+  resp = await poteto(_(), { method: 'PUT', body: bodygen(), headers: { 'Range': 'bytes=3-15' }, duplex: 'half' });
+  validate(resp, { status: 201 });
+
+  resp = await poteto(_());
+  validate(resp, { status: 200 }, { 'x-test-size': '16' });
+  text = await resp.text();
+  assert.strictEqual(text, '\x00\x00\x005758596061626');
 
   await new Promise(_ => setTimeout(_, 9));
 

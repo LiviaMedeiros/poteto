@@ -93,12 +93,18 @@ const GET = async (url, { headers, integrity, signal }) => {
 const HEAD = async url =>
   statsAsOptions(fs.stat(url, STAT_OPTS)).then($ => new Response(null, $));
 
-const PUT = async (url, { body, headers, signal }) => {
+const POSTorPUT = async (url, { body, headers, method, signal }) => {
+  if (!body)
+    return genericResponse(422);
+
+  const flag = method === 'PUT' ? 'w+' : 'r+';
   const [range] = getRanges(headers);
 
-  return range
-    ? writeRange(range, url, body)
-    : fs.writeFile(url, body, { signal });
+  return (
+    range
+      ? writeRange(range, url, body, flag)
+      : fs.writeFile(url, body, { signal, flag })
+  ).then(() => genericResponse(201));
 };
 
 const DELETE = async url =>
@@ -108,10 +114,8 @@ const methods = new Map([
   // HTTP-alike methods
   ['GET', GET],
   ['HEAD', HEAD],
-  ['PUT', async (url, { body, headers, signal }) =>
-    body
-      ? PUT(url, { body, headers, signal }).then(() => genericResponse(201))
-      : genericResponse(422)],
+  ['POST', POSTorPUT],
+  ['PUT', POSTorPUT],
   ['DELETE', DELETE],
 
   // POTETO methods
@@ -143,7 +147,6 @@ const methods = new Map([
     )],
 
   // unsupported HTTP-alike methods
-  ['POST', async () => genericResponse(501)],
   ['CONNECT', async () => genericResponse(501)],
   ['OPTIONS', async () => genericResponse(501)],
   ['TRACE', async () => genericResponse(501)],
