@@ -16,7 +16,6 @@ import {
 } from './lib/constants.mjs';
 import {
   errorAsUndefined,
-  requestConstructor,
   responseConstructor,
 } from './lib/generic.mjs';
 import {
@@ -45,7 +44,7 @@ const adjustHeaders = ({ headers }) =>
     // TODO: Content-Type?
     ['Content-Length', headers.size],
     ['Last-Modified', headers.mtime?.toUTCString()],
-  ].filter(([$, _]) => _ !== undefined));
+  ].filter(([, $]) => $ !== undefined));
 
 const statsAsOptions = async (statsOrError, { status } = {}) =>
   Promise.resolve(statsOrError)
@@ -143,7 +142,7 @@ const methods = new Map([
   ['DELETE', DELETE],
 
   // POTETO methods
-  ['READ', async (url, { signal }) =>
+  ['READ', async url =>
     fs.open(url).then(async fd =>
       new Response(
         // fd must be closed someow after the stream is consumed
