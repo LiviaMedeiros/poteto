@@ -47,10 +47,8 @@ const adjustHeaders = ({ headers }) =>
 
 const statsAsOptions = async (statsOrError, { status } = {}) =>
   Promise.resolve(statsOrError)
-    .then(
-      headers => ({ ...errAsStatus(headers, status), headers }),
-      headers => ({ ...errAsStatus(headers, status), headers })
-    )
+    .catch($ => $)
+    .then(headers => ({ ...errAsStatus(headers, status), headers }))
     .then($ => Object.assign($, { headers: adjustHeaders($) }));
 
 const getFileURL = (url, fileURL = null) =>
