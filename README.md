@@ -72,10 +72,10 @@ import poteto from 'poteto';
   });
 }
 
-// write partial file range
+// write partial file range with POST
 {
   const { statusText } = await poteto('new_file.txt', {
-    method: 'PUT',
+    method: 'POST',
     body: 'fileUNUSED',
     headers: {
       'Range': 'bytes=4-7',
@@ -182,6 +182,12 @@ Also `GET` supports `Range` header and SRI[^SRI], and might support other featur
 Just to mirror `GET` and `READ`. They are different in the same way, but there shouldn't be any benefits in using `WRITE`.
 
 Also `PUT` supports `Range` header which allows it to write in user-defined file positions.
+
+## What is the difference between `POST` and `PUT`
+
+`POST` opens file with `r+` flag while `PUT` uses `w+`. Which means:
+- `POST` can write partial file range in existing file without rewriting, but `PUT` will truncate the end and fill beginning with NUL bytes.
+- `PUT` will create new files or overwrite existing ones, but `POST` will return `404` if the file doesn't exist yet.
 
 ## Why is it called like that
 
