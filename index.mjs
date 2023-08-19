@@ -8,6 +8,7 @@ import {
   errAsStatus,
   genericResponse,
   getGenericHeaders,
+  getRanges,
 } from './lib/http.mjs';
 import {
   STAT_OPTS,
@@ -92,9 +93,9 @@ const GET = async (url, { headers, integrity, signal }) => {
   const stats = await fs.stat(url, STAT_OPTS);
   const { size } = stats;
 
-  const ranges = headers.get('Range')?.split(';')[0].split('=')[1].split(',').map($ => $.trim());
+  const ranges = getRanges(headers);
 
-  return ranges
+  return ranges.length
     ? Promise.all(ranges.map(range => readRange(range, size, url)))
         .then($ => validatedBody(integrity, $))
         .then(
@@ -121,7 +122,7 @@ const HEAD = async url =>
   statsAsOptions(fs.stat(url, STAT_OPTS)).then($ => new Response(null, $));
 
 const PUT = async (url, { body, headers, signal }) => {
-    const range = headers.get('Range')?.split(';')[0].split('=')[1].split(',')[0].trim();
+    const [range] = getRanges(headers);
 
     return range
       ? writeRange(range, url, body)
