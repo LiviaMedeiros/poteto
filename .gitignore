@@ -130,4 +130,6 @@ dist
 .pnp.*
 
 # poteto
+.eslint*
+/package-lock.json
 /testdir/sequence/deleteme-*
