@@ -64,7 +64,18 @@ import poteto from 'poteto';
 {
   const { status } = await poteto('file:./new_file.txt', {
     method: 'PUT',
-    body: 'new file contents',
+    body: 'new ifel contents',
+  });
+}
+
+// write partial file range
+{
+  const { statusText } = await poteto('new_file.txt', {
+    method: 'PUT',
+    body: 'fileUNUSED',
+    headers: {
+      'Range': 'bytes=4-7',
+    },
   });
 }
 
