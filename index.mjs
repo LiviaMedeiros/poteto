@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import { sep } from 'node:path';
 import { cwd } from 'node:process';
-import { Readable, Writable } from 'node:stream';
+import { Writable } from 'node:stream';
 import { pathToFileURL } from 'node:url';
 
 import {
@@ -192,18 +192,21 @@ const executeRequest = async (url, request) =>
   (methods.get(request.method) ??
   (async () => genericResponse(405)))(url, request);
 
-export default new Proxy(fetch, {
+const handler = {
   async apply(target, thisArg, argumentsList) {
     const { url, request } = fileRequestURL(argumentsList);
 
     return url.protocol === 'file:'
       ? executeRequest(url, request).catch(err =>
-          statsAsOptions(err).then(opts => opts.status
-            ? Promise.resolve(/application\/json/.test(request.headers.get('Accept'))
-              ? Response.json(err, opts)
-              : new Response(err.message, opts))
-            : Promise.reject(err)
+          statsAsOptions(err).then(opts =>
+            opts.status
+              ? Promise.resolve(/application\/json/.test(request.headers.get('Accept'))
+                  ? Response.json(err, opts)
+                  : new Response(err.message, opts))
+              : Promise.reject(err)
           ))
       : Reflect.apply(target, thisArg, argumentsList);
-  }
-});
+  },
+};
+
+export default new Proxy(fetch, handler);
