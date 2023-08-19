@@ -148,8 +148,11 @@ const methods = new Map([
 
   // unsupported HTTP-alike methods
   ['CONNECT', async () => genericResponse(501)],
+
+  // forbidden HTTP-alike methods that should throw
   ['OPTIONS', async () => genericResponse(501)],
   ['TRACE', async () => genericResponse(501)],
+  ['TRACK', async () => genericResponse(501)],
 ]);
 
 const executeRequest = async (url, request) =>
