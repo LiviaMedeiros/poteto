@@ -47,7 +47,7 @@ test('redirect', async () => {
   text = await resp.text();
   assert.strictEqual(text, '');
   location = resp.headers.get('Location');
-  assert.strictEqual(location, new URL(`../testdir/redirect/target`, import.meta.url).href);
+  assert.strictEqual(location, new URL('../testdir/redirect/target', import.meta.url).href);
   resp = await poteto(location, { redirect: 'manual' });
   text = await resp.text();
   assert.strictEqual(text, 'target content');
@@ -56,12 +56,12 @@ test('redirect', async () => {
   text = await resp.text();
   assert.strictEqual(text, '');
   location = resp.headers.get('Location');
-  assert.strictEqual(location, new URL(`../testdir/redirect/link1`, import.meta.url).href);
+  assert.strictEqual(location, new URL('../testdir/redirect/link1', import.meta.url).href);
   resp = await poteto(location, { redirect: 'manual' });
   text = await resp.text();
   assert.strictEqual(text, '');
   location = resp.headers.get('Location');
-  assert.strictEqual(location, new URL(`../testdir/redirect/target`, import.meta.url).href);
+  assert.strictEqual(location, new URL('../testdir/redirect/target', import.meta.url).href);
   resp = await poteto(location, { redirect: 'manual' });
   text = await resp.text();
   assert.strictEqual(text, 'target content');

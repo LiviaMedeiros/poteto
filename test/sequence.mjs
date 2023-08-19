@@ -12,7 +12,7 @@ const bodygen = async function*(n = 10, pause = 9) {
     yield `${_i++}`;
     await new Promise(_ => setTimeout(_, pause));
   }
-}
+};
 
 const validate = (actual, expected = {}, headers = {}) => {
   assert.ok(actual instanceof Response, `${actual} is not Response`);
@@ -27,10 +27,10 @@ const validate = (actual, expected = {}, headers = {}) => {
     assert.strictEqual(actual[key], value)
   );
 
-   Object.entries(headers).forEach(([key, value]) =>
+  Object.entries(headers).forEach(([key, value]) =>
     assert.strictEqual(actual.headers.get(key), value)
   );
-}
+};
 
 const filename = `deleteme-${Math.random()}`;
 

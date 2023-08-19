@@ -4,7 +4,7 @@ import poteto from '../index.mjs?persistCwd=true';
 const printResponse = async ({ ok, body }) => {
   for await (const $ of body)
     process[ok ? 'stdout' : 'stderr'].write($);
-}
+};
 
 const [,,...urls] = process.argv;
 
@@ -24,7 +24,7 @@ const catOrder = async urls => {
   for (const url of urls)
     await poteto(url).then(printResponse);
     //await printResponse(await poteto(url));
-}
+};
 
 await catOrder(urls);
 //await catConcurrent(urls);

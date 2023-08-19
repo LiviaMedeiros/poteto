@@ -96,37 +96,37 @@ const GET = async (url, { headers, integrity, signal }) => {
 
   return ranges.length
     ? Promise.all(ranges.map(range => readRange(range, size, url)))
-        .then($ => validatedBody(integrity, $))
-        .then(
-          async body => [
-            body,
-            await statsAsOptions(
-              Object.assign(stats, { size: BigInt(body.byteLength) }),
-              { status: 206 }
-            ),
-          ]
-        )
-        .then(responseConstructor)
-        .catch($ => $ instanceof RangeError
-          ? genericResponse(416)
-          : Promise.reject($)
-        )
+      .then($ => validatedBody(integrity, $))
+      .then(
+        async body => [
+          body,
+          await statsAsOptions(
+            Object.assign(stats, { size: BigInt(body.byteLength) }),
+            { status: 206 }
+          ),
+        ]
+      )
+      .then(responseConstructor)
+      .catch($ => $ instanceof RangeError
+        ? genericResponse(416)
+        : Promise.reject($)
+      )
     : Promise.all([
-        fs.readFile(url, { signal }).then($ => validatedBody(integrity, [$])),
-        statsAsOptions(stats),
-      ]).then(responseConstructor);
+      fs.readFile(url, { signal }).then($ => validatedBody(integrity, [$])),
+      statsAsOptions(stats),
+    ]).then(responseConstructor);
 };
 
 const HEAD = async url =>
   statsAsOptions(fs.stat(url, STAT_OPTS)).then($ => new Response(null, $));
 
 const PUT = async (url, { body, headers, signal }) => {
-    const [range] = getRanges(headers);
+  const [range] = getRanges(headers);
 
-    return range
-      ? writeRange(range, url, body)
-      : fs.writeFile(url, body, { signal });
-}
+  return range
+    ? writeRange(range, url, body)
+    : fs.writeFile(url, body, { signal });
+};
 
 const DELETE = async url =>
   fs.rm(url).then(() => genericResponse(204));
@@ -154,8 +154,8 @@ const methods = new Map([
   ['WRITE', async (url, { body, signal }) =>
     body instanceof ReadableStream
       ? fs.open(url, 'w')
-          .then(fd => body.pipeTo(Writable.toWeb(fd.createWriteStream()), { signal }))
-          .then(() => genericResponse(201))
+        .then(fd => body.pipeTo(Writable.toWeb(fd.createWriteStream()), { signal }))
+        .then(() => genericResponse(201))
       : genericResponse(422)],
   ['APPEND', async (url, { body, signal }) =>
     body
@@ -187,14 +187,13 @@ const handler = {
 
     return url.protocol === 'file:'
       ? executeRequest(url, request).catch(err =>
-          statsAsOptions(err).then(opts =>
-            opts.status
-              ? Promise.resolve(/application\/json/.test(request.headers.get('Accept'))
-                  ? Response.json(err, opts)
-                  : new Response(err.message, opts))
-              : Promise.reject(err)
-          )
-        )
+        statsAsOptions(err).then(opts =>
+          opts.status
+            ? Promise.resolve(/application\/json/.test(request.headers.get('Accept'))
+              ? Response.json(err, opts)
+              : new Response(err.message, opts))
+            : Promise.reject(err)
+        ))
       : Reflect.apply(target, thisArg, argumentsList);
   },
 };
