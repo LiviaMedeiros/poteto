@@ -18,3 +18,134 @@ rules:
   semi:
     - error
     - always
+  accessor-pairs:
+    - error
+  array-callback-return:
+    - error
+  brace-style:
+    - error
+    - 1tbs
+  block-scoped-var:
+    - error
+  block-spacing:
+    - error
+  comma-style:
+    - error
+  comma-spacing:
+    - error
+  computed-property-spacing:
+    - error
+  default-case-last:
+    - error
+  dot-location:
+    - error
+    - property
+  dot-notation:
+    - error
+  eol-last:
+    - error
+  eqeqeq:
+    - error
+  func-call-spacing:
+    - error
+  func-name-matching:
+    - error
+  func-style:
+    - error
+    - declaration
+    - allowArrowFunctions:
+        true
+  key-spacing:
+    - error
+  keyword-spacing:
+    - error
+  new-parens:
+    - error
+  no-constant-condition:
+    - error
+  no-constructor-return:
+    - error
+  no-duplicate-imports:
+    - error
+  no-else-return:
+    - error
+  no-extra-parens:
+    - error
+  no-lonely-if:
+    - error
+  no-multi-spaces:
+    - error
+  no-multiple-empty-lines:
+    - error
+  no-path-concat:
+    - error
+  no-proto:
+    - error
+  no-redeclare:
+    - error
+  no-return-await:
+    - error
+  no-self-compare:
+    - error
+  no-tabs:
+    - error
+  no-template-curly-in-string:
+    - error
+  no-throw-literal:
+    - error
+  no-trailing-spaces:
+    - error
+  no-undef:
+    - error
+  no-undef-init:
+    - error
+  no-unused-vars:
+    - error
+  no-use-before-define:
+    - error
+  no-useless-call:
+    - error
+  no-useless-concat:
+    - error
+  no-useless-constructor:
+    - error
+  no-useless-return:
+    - error
+  no-var:
+    - error
+  no-void:
+    - error
+  no-whitespace-before-property:
+    - error
+  object-curly-newline:
+    - error
+  one-var-declaration-per-line:
+    - error
+  operator-linebreak:
+    - error
+  padding-line-between-statements:
+    - error
+  prefer-object-has-own:
+    - error
+  rest-spread-spacing:
+    - error
+  semi-spacing:
+    - error
+  space-before-blocks:
+    - error
+  space-in-parens:
+    - error
+  space-infix-ops:
+    - error
+  space-unary-ops:
+    - error
+  strict:
+    - error
+  symbol-description:
+    - error
+  template-curly-spacing:
+    - error
+  unicode-bom:
+    - error
+  valid-typeof:
+    - error

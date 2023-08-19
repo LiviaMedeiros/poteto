@@ -7,12 +7,12 @@ import test from 'node:test';
 chdir(fileURLToPath(new URL('../testdir/sequence/', import.meta.url)));
 
 let _i = 0;
-const bodygen = async function*(n = 10, pause = 9) {
+async function* bodygen(n = 10, pause = 9) {
   while (n--) {
     yield `${_i++}`;
     await new Promise(_ => setTimeout(_, pause));
   }
-};
+}
 
 const validate = (actual, expected = {}, headers = {}) => {
   assert.ok(actual instanceof Response, `${actual} is not Response`);

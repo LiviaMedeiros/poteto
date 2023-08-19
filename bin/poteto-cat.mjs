@@ -6,7 +6,7 @@ const printResponse = async ({ ok, body }) => {
     process[ok ? 'stdout' : 'stderr'].write($);
 };
 
-const [,,...urls] = process.argv;
+const [,, ...urls] = process.argv;
 
 // chunks from different files may come in arbitrary order
 // low memory footprint
