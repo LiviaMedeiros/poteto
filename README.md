@@ -180,6 +180,8 @@ Also `GET` supports `Range` header and SRI[^SRI], and might support other featur
 
 Just to mirror `GET` and `READ`. They are different in the same way, but there shouldn't be any benefits in using `WRITE`.
 
+Also `PUT` supports `Range` header which allows it to write in user-defined file positions.
+
 ## Why is it called like that
 
 No particular reason.
