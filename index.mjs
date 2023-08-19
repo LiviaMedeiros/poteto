@@ -1,6 +1,4 @@
 import fs from 'node:fs/promises';
-import { sep } from 'node:path';
-import { cwd } from 'node:process';
 import { Writable } from 'node:stream';
 import { pathToFileURL } from 'node:url';
 
@@ -16,6 +14,7 @@ import {
 } from './lib/constants.mjs';
 import {
   errorAsUndefined,
+  getCwdURL,
   responseConstructor,
 } from './lib/generic.mjs';
 import {
@@ -28,8 +27,8 @@ import {
 
 const _params = Object.fromEntries(new URL(import.meta.url).searchParams.entries());
 const cwdURL = _params.persistCwd
-  ? pathToFileURL(cwd() + sep).href
-  : { [Symbol.toPrimitive]: () => pathToFileURL(cwd() + sep).href };
+  ? getCwdURL()
+  : { [Symbol.toPrimitive]: getCwdURL };
 const PREFIX = `X-${_params.prefix ?? 'POTETO'}-`;
 
 const adjustHeaders = ({ headers }) =>
