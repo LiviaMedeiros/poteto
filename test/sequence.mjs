@@ -37,9 +37,11 @@ const filename = `deleteme-${Math.random()}`;
 const _ = ($ = filename) => [
   filename => filename,
   filename => `./${filename}`,
+  filename => `file:${filename}`,
+  filename => `file:./${filename}`,
   filename => new URL(`../testdir/sequence/./${filename}`, import.meta.url),
   filename => new URL(`../testdir/sequence/./${filename}`, import.meta.url).href,
-][Math.floor(Math.random() * 4)]($);
+][Math.floor(Math.random() * 6)]($);
 
 test('sequence', async () => {
   let resp;

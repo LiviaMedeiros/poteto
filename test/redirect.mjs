@@ -9,9 +9,11 @@ chdir(fileURLToPath(new URL('../testdir/redirect/', import.meta.url)));
 const _ = $ => [
   filename => filename,
   filename => `./${filename}`,
+  filename => `file:${filename}`,
+  filename => `file:./${filename}`,
   filename => new URL(`../testdir/redirect/./${filename}`, import.meta.url),
   filename => new URL(`../testdir/redirect/./${filename}`, import.meta.url).href,
-][Math.floor(Math.random() * 4)]($);
+][Math.floor(Math.random() * 6)]($);
 
 test('redirect', async () => {
   let resp;
