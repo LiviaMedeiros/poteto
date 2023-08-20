@@ -8,8 +8,9 @@ const printResponse = async ({ ok, body }) => {
 
 const [,, ...urls] = process.argv;
 
-// everything comes in order
-// each local file loaded in memory
-// GET method for all
-for (const url of urls)
-  await poteto(url).then(printResponse);
+// chunks from different files may come in arbitrary order
+// low memory footprint
+// READ method will be used even for remote addresses
+await Promise.all(urls.map(url =>
+  poteto(url, { method: 'READ' }).then(printResponse)
+));
