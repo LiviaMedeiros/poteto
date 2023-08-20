@@ -6,9 +6,7 @@ import test from 'node:test';
 
 chdir(fileURLToPath(new URL('../testdir/redirect/', import.meta.url)));
 
-const filename = `deleteme-${Math.random()}`;
-
-const _ = ($ = filename) => [
+const _ = $ => [
   filename => filename,
   filename => `./${filename}`,
   filename => new URL(`../testdir/redirect/./${filename}`, import.meta.url),
