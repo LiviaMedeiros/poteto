@@ -4,7 +4,7 @@ import test from 'node:test';
 import { execFileSync } from 'node:child_process';
 import { sep } from 'node:path';
 
-const cwd = new URL('.', import.meta.url);
+const cwd = new URL('../testdir/bin/', import.meta.url);
 const options = { cwd, shell: true };
 
 const _ = $ => [
@@ -12,8 +12,9 @@ const _ = $ => [
   filename => `./${filename}`,
   filename => `file:${filename}`,
   filename => `file:./${filename}`,
-  filename => new URL(`./${filename}`, import.meta.url).href,
-][Math.floor(Math.random() * 5)]($);
+  filename => new URL(`../testdir/bin/./${filename}`, import.meta.url),
+  filename => new URL(`../testdir/bin/./${filename}`, import.meta.url).href,
+][Math.floor(Math.random() * 6)]($);
 
 const isWindows = platform === 'win32';
 
@@ -30,24 +31,24 @@ test('cat', async () => {
 
   assert.deepStrictEqual(
     nodeExecSync(
-      '../bin/poteto-cat.mjs',
-      ['../LICENSE', '../README.md', '../package.json'].map(_)
+      '../../bin/poteto-cat.mjs',
+      ['../../LICENSE', '../../README.md', '../../package.json'].map(_)
     ),
     execFileSync(
       nativeCat,
-      [`..${sep}LICENSE`, `..${sep}README.md`, `..${sep}package.json`],
+      [`..${sep}..${sep}LICENSE`, `..${sep}..${sep}README.md`, `..${sep}..${sep}package.json`],
       options
     ),
   );
 
   assert.deepStrictEqual(
     nodeExecSync(
-      '../bin/poteto-cat.mjs',
-      ['../LICENSE'].map(_)
+      '../../bin/poteto-cat.mjs',
+      ['../../LICENSE'].map(_)
     ),
     execFileSync(
       nativeCat,
-      [`..${sep}LICENSE`],
+      [`..${sep}..${sep}LICENSE`],
       options
     ),
   );
@@ -58,24 +59,24 @@ test('dog', async () => {
 
   assert.deepStrictEqual(
     nodeExecSync(
-      '../bin/poteto-dog.mjs',
-      ['../LICENSE', '../README.md', '../package.json'].map(_)
+      '../../bin/poteto-dog.mjs',
+      ['../../LICENSE', '../../README.md', '../../package.json'].map(_)
     ).length,
     execFileSync(
       nativeCat,
-      [`..${sep}LICENSE`, `..${sep}README.md`, `..${sep}package.json`],
+      [`..${sep}..${sep}LICENSE`, `..${sep}..${sep}README.md`, `..${sep}..${sep}package.json`],
       options
     ).length,
   );
 
   assert.deepStrictEqual(
     nodeExecSync(
-      '../bin/poteto-dog.mjs',
-      ['../LICENSE'].map(_)
+      '../../bin/poteto-dog.mjs',
+      ['../../LICENSE'].map(_)
     ).length,
     execFileSync(
       nativeCat,
-      [`..${sep}LICENSE`],
+      [`..${sep}..${sep}LICENSE`],
       options
     ).length,
   );
