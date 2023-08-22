@@ -5,8 +5,9 @@
   "type": "module",
   "exports": "./index.mjs",
   "bin": {
-    "poteto-cat": "bin/poteto-cat.mjs",
-    "poteto-dog": "bin/poteto-dog.mjs"
+    "poteto-cat": "./bin/poteto-cat.mjs",
+    "poteto-dog": "./bin/poteto-dog.mjs",
+    "poteto-ls": "./bin/poteto-ls.mjs"
   },
   "private": true,
   "scripts": {
