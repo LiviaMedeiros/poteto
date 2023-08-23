@@ -18,20 +18,20 @@ const _ = $ => [
 
 const isWindows = platform === 'win32';
 
-const nodeExecSync = (bin, args, opts = options) =>
+const potetoExecSync = (bin, args, overrides) =>
   execFileSync(
     ...isWindows
-      ? [execPath, [bin, ...args]]
-      : [bin, args],
-    opts
+      ? [execPath, [['..', '..', 'bin', `poteto-${bin}.mjs`].join(sep), ...args]]
+      : [['..', '..', 'bin', `poteto-${bin}.mjs`].join(sep), args],
+    { ...options, ...overrides },
   );
 
 test('cat', async () => {
   const nativeCat = isWindows ? 'type' : 'cat';
 
   assert.deepStrictEqual(
-    nodeExecSync(
-      '../../bin/poteto-cat.mjs',
+    potetoExecSync(
+      'cat',
       ['../../LICENSE', '../../README.md', '../../package.json'].map(_)
     ),
     execFileSync(
@@ -42,8 +42,8 @@ test('cat', async () => {
   );
 
   assert.deepStrictEqual(
-    nodeExecSync(
-      '../../bin/poteto-cat.mjs',
+    potetoExecSync(
+      'cat',
       ['../../LICENSE'].map(_)
     ),
     execFileSync(
@@ -58,8 +58,8 @@ test('dog', async () => {
   const nativeCat = isWindows ? 'type' : 'cat';
 
   assert.deepStrictEqual(
-    nodeExecSync(
-      '../../bin/poteto-dog.mjs',
+    potetoExecSync(
+      'dog',
       ['../../LICENSE', '../../README.md', '../../package.json'].map(_)
     ).length,
     execFileSync(
@@ -70,8 +70,8 @@ test('dog', async () => {
   );
 
   assert.deepStrictEqual(
-    nodeExecSync(
-      '../../bin/poteto-dog.mjs',
+    potetoExecSync(
+      'dog',
       ['../../LICENSE'].map(_)
     ).length,
     execFileSync(
@@ -80,4 +80,58 @@ test('dog', async () => {
       options
     ).length,
   );
+});
+
+test('put-ls-rm', async () => {
+  assert.deepStrictEqual(JSON.parse(potetoExecSync(
+    'ls',
+    []
+  )),
+  { './': ['.keep'] });
+
+  assert.strictEqual(
+    potetoExecSync(
+      'put',
+      ['poteto'].map(_),
+      { input: 'Be saved' }
+    ).byteLength,
+    0,
+  );
+
+  assert.strictEqual(
+    potetoExecSync(
+      'put',
+      ['poteto'].map(_),
+      { input: 'Be saved' }
+    ).byteLength,
+    0,
+  );
+
+  assert.deepStrictEqual(JSON.parse(potetoExecSync(
+    'ls',
+    []
+  )),
+  { './': ['.keep', 'poteto'] });
+
+  assert.deepStrictEqual(
+    potetoExecSync(
+      'cat',
+      ['poteto'].map(_)
+    ),
+    Buffer.from('Be saved'),
+  );
+
+  assert.strictEqual(
+    potetoExecSync(
+      'rm',
+      ['poteto'].map(_)
+    ).byteLength,
+    0,
+  );
+
+  assert.deepStrictEqual(JSON.parse(potetoExecSync(
+    'ls',
+    []
+  )),
+  { './': ['.keep'] });
 });

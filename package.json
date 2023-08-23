@@ -7,7 +7,9 @@
   "bin": {
     "poteto-cat": "./bin/poteto-cat.mjs",
     "poteto-dog": "./bin/poteto-dog.mjs",
-    "poteto-ls": "./bin/poteto-ls.mjs"
+    "poteto-ls": "./bin/poteto-ls.mjs",
+    "poteto-put": "./bin/poteto-put.mjs",
+    "poteto-rm": "./bin/poteto-rm.mjs"
   },
   "private": true,
   "scripts": {

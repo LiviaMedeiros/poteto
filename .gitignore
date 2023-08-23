@@ -132,3 +132,4 @@ dist
 # poteto
 /package-lock.json
 /testdir/sequence/deleteme-*
+/testdir/bin/poteto
