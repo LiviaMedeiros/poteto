@@ -140,6 +140,61 @@ import poteto from 'poteto';
 }
 ```
 
+# Subpaths
+
+Subpath imports allow to add `poteto` to the project in different ways.
+
+## `poteto/polyfill`
+
+```mjs
+import 'poteto/polyfill';
+
+await fetch('/dev/null');
+(new Request('/dev/null')).url === 'file:///dev/null'
+```
+Replaces `globalThis.fetch` and `globalThis.Request` with proxies.
+Constructing `Request` with applicable URL results in regular `Request` instance but with fully-resolved `file:` URL.
+For non-`file:` URLs, it works transparently.
+
+## `poteto/ponyfill`
+
+```mjs
+import ponyfill from 'poteto/ponyfill';
+import { fetch as potetoFetch, Request as PotetoRequest } from 'poteto/ponyfill';
+
+ponyfill === potetoFetch;
+```
+
+Provides separate AsyncFunction `fetch` and Class `Request` that use `globalThis.fetch` and `globalThis.Request` internally but do not allow to indirectly mutate them.
+
+## `poteto/factory`
+
+```mjs
+import { proxify, wrap } from 'poteto/factory';
+
+const mutableFetch = proxify(fetch);
+const independentFetch = wrap(fetch);
+```
+
+`proxify` allows to make poteto-like proxy around user-specified `fetch` function. This will use proxified `Request` internally.
+`wrap` returns a new function that will use user-specified `fetch` function as fallback for non-`file:` URLs. This will use `PotetoRequest` class that extends `Request`.
+
+## `poteto/internal`
+
+```mjs
+import { methods, execute } from 'poteto/internal';
+
+methods.set('HELLO', async (url, request) => new Response('WORLD'));
+
+await execute(new Request('file:///dev/zero', { method: 'HELLO' }));
+```
+
+Exposes internal Map `methods` and AsyncFunction `execute`.
+
+`methods` has methods in a form of functions that take the `URL` instance as first argument and `Request` instance as second. This was made for convenience, because `request.url` exposes string instead of `URL` instance.
+
+`execute(request[, url])` performs fetch using the methods map. Unlike in other imports, this one does not fallback for non-`file:` URL and executes request anyway. Optional `url` parameter allows to override first argument passing to the method.
+
 # Rationale
 
 Sometimes we just want to be able to read local and remote files in the same manner.
@@ -195,7 +250,7 @@ No particular reason.
 
 ## Can this be used in production
 
-Think twice.
+Why not, but be aware that there is no standard at the moment.
 
 # License
 
