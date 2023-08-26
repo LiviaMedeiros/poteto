@@ -140,6 +140,78 @@ import poteto from 'poteto';
 }
 ```
 
+# Methods
+
+## HTTP-alike methods
+
+### `GET`
+
+Reads file. Supports [`Range`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range) header and SRI[^SRI].
+
+Returns `HTTP 200` or `HTTP 206`, and file body.
+
+### `HEAD`
+
+Returns [`fs.Stats`](https://nodejs.org/api/fs.html#class-fsstats) of file in headers. Note that `GET` also does it.
+
+Returns `HTTP 200` without body.
+
+### `DELETE`
+
+Deletes file or directory.
+
+Returns `HTTP 204`.
+
+### `POST` and `PUT`
+
+Writes request body to file. Supports [`Range`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range) header (only one range is allowed).
+
+`POST` opens file with `r+` flag while `PUT` uses `w+`. Which means:
+- `POST` can write partial file range in existing file without rewriting, but `PUT` will truncate the end and fill beginning with NUL bytes.
+- `PUT` will create new files or overwrite existing ones, but `POST` will return `HTTP 404` if the file doesn't exist yet.
+
+Returns `HTTP 201`.
+
+## POTETO methods
+
+These are case-sensitive.
+
+### `APPEND`
+
+Appends request body to file.
+
+Returns `HTTP 201`.
+
+### `LIST`
+
+Reads directory contents. Also gets [`fs.Stats`](https://nodejs.org/api/fs.html#class-fsstats) for the directory.
+
+Returns `HTTP 200` with JSON response, containing array of items. Subdirectory names will have trailing `/`.
+
+### `READ`
+
+Reads file. See [Why there is `GET` and `READ`](#why-there-is-put-and-write).
+
+Returns `HTTP 200` and file body.
+
+### `WRITE`
+
+Writes request body to file in `w` mode. See [Why there is `PUT` and `WRITE`](#why-there-is-put-and-write) or ignore.
+
+Returns `HTTP 201`.
+
+# Response headers
+
+Poteto-specific headers are be prefixed with `X-Poteto-` prefix. For example, to get filesize, look for `X-Poteto-Size` header.
+
+# Error handling
+
+If there is an error and it's known, returned promise is resolved with `Response` having reasonable HTTP status. For example, `ENOENT` translates to `HTTP 404` and `EACCES` translates to `HTTP 403`.
+
+The headers contain error information. If `Accept` header is `application/json`, the body will contain serialized error as JSON; otherwise, it will contain its `.message`.
+
+If the error is unknown, returned promise is rejected with it.
+
 # Subpaths
 
 Subpath imports allow to add `poteto` to the project in different ways.
@@ -216,7 +288,7 @@ Sometimes we want to read a file requested by URL and have appropriate HTTP `Res
 
 Right now `file` protocol is not standartized, and HTTP entities such as status codes, headers and algorithms are not related to it.
 
-However, some projections such as `GET` => `read file`, `ENOENT` => `404 Not Found`, `Accept: application/json` => `return data as json` are intuitive enough to be implemented.
+However, some projections such as `GET` => `read file`, `ENOENT` => `404 Not Found`, `Accept: application/json` => `return data as json` are intuitive enough to be implemented, so here we are.
 
 # FAQ
 
@@ -237,12 +309,6 @@ Also `GET` supports `Range` header and SRI[^SRI], and might support other featur
 Just to mirror `GET` and `READ`. They are different in the same way, but there shouldn't be any benefits in using `WRITE`.
 
 Also `PUT` supports `Range` header which allows it to write in user-defined file positions.
-
-## What is the difference between `POST` and `PUT`
-
-`POST` opens file with `r+` flag while `PUT` uses `w+`. Which means:
-- `POST` can write partial file range in existing file without rewriting, but `PUT` will truncate the end and fill beginning with NUL bytes.
-- `PUT` will create new files or overwrite existing ones, but `POST` will return `404` if the file doesn't exist yet.
 
 ## Why is it called like that
 
