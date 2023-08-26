@@ -1,6 +1,6 @@
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
-import poteto from '../index.mjs?prefix=test';
+import poteto from '../index.mjs';
 import assert from 'node:assert';
 import test from 'node:test';
 
@@ -55,20 +55,20 @@ test('sequence', async () => {
   assert.ok(!json.includes(filename));
 
   resp = await poteto(_());
-  validate(resp, { status: 404 }, { 'x-test-code': 'ENOENT' });
+  validate(resp, { status: 404 }, { 'x-poteto-code': 'ENOENT' });
 
   resp = await poteto(_(), { method: 'HEAD' });
-  validate(resp, { status: 404 }, { 'x-test-code': 'ENOENT' });
+  validate(resp, { status: 404 }, { 'x-poteto-code': 'ENOENT' });
   body = resp.body;
   assert.strictEqual(body, null);
   text = await resp.text();
   assert.strictEqual(text, '');
 
   resp = await poteto(_(), { method: 'DELETE' });
-  validate(resp, { status: 404 }, { 'x-test-code': 'ENOENT' });
+  validate(resp, { status: 404 }, { 'x-poteto-code': 'ENOENT' });
 
   resp = await poteto(_(), { method: 'DELETE', headers: { 'Accept': 'application/json' } });
-  validate(resp, { status: 404 }, { 'x-test-code': 'ENOENT' });
+  validate(resp, { status: 404 }, { 'x-poteto-code': 'ENOENT' });
   json = await resp.json();
   assert.strictEqual(json.code, 'ENOENT');
 
@@ -87,7 +87,7 @@ test('sequence', async () => {
   );
 
   resp = await poteto(_(), { integrity: 'sha1-qUqP5cyxm6YcTAhz05Hph5gvu9M=' });
-  validate(resp, { status: 200 }, { 'x-test-size': '4' });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '4' });
   text = await resp.text();
   assert.strictEqual(text, 'test');
 
@@ -95,27 +95,27 @@ test('sequence', async () => {
   validate(resp, { status: 201 });
 
   resp = await poteto(_(), { integrity: 'sha384-kK5THyTkhpeQSk0ChvNUxQo1DrtsK578si9xyWzq7/wRxglenKDfDsML9oXc8uXl' });
-  validate(resp, { status: 200 }, { 'x-test-size': '10' });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '10' });
   text = await resp.text();
   assert.strictEqual(text, '0123456789');
 
   resp = await poteto(_(), { headers: { 'Range': 'bytes=1-3,5-5,7-8'} });
-  validate(resp, { status: 206 }, { 'x-test-size': '6' });
+  validate(resp, { status: 206 }, { 'x-poteto-size': '6' });
   text = await resp.text();
   assert.strictEqual(text, '123578');
 
   resp = await poteto(_(), { headers: { 'Range': 'bytes=1-2,4-5,7-7'}, integrity: 'sha1-db3ms9F0w5Sozo0ZTj6GiLCmM+A=' });
-  validate(resp, { status: 206 }, { 'x-test-size': '5' });
+  validate(resp, { status: 206 }, { 'x-poteto-size': '5' });
   text = await resp.text();
   assert.strictEqual(text, '12457');
 
   resp = await poteto(_(), { headers: { 'Range': 'bytes=5-'} });
-  validate(resp, { status: 206 }, { 'x-test-size': '5' });
+  validate(resp, { status: 206 }, { 'x-poteto-size': '5' });
   text = await resp.text();
   assert.strictEqual(text, '56789');
 
   resp = await poteto(_(), { headers: { 'Range': 'bytes=-3'} });
-  validate(resp, { status: 206 }, { 'x-test-size': '3' });
+  validate(resp, { status: 206 }, { 'x-poteto-size': '3' });
   text = await resp.text();
   assert.strictEqual(text, '789');
 
@@ -138,7 +138,7 @@ test('sequence', async () => {
   validate(resp, { status: 422 });
 
   resp = await poteto(_(), { integrity: 'sha512-7iaw3Ur350mqGo7jwQrpkj9hiYB3Lkc/iBml1JQODbJ6wYX4oOHV+E+IvIh/1nsUNzLDBMxfqa2Ob1f1ACio/w==' });
-  validate(resp, { status: 200 }, { 'x-test-size': '4' });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '4' });
   text = await resp.text();
   assert.strictEqual(text, 'test');
 
@@ -146,12 +146,12 @@ test('sequence', async () => {
   validate(resp, { status: 201 });
 
   resp = await poteto(`${_()}${'a'.repeat(2 ** 16)}`, { headers: { 'Accept': 'application/json' } });
-  validate(resp, { status: 400 }, { 'x-test-code': 'ENAMETOOLONG' });
+  validate(resp, { status: 400 }, { 'x-poteto-code': 'ENAMETOOLONG' });
   json = await resp.json();
   assert.strictEqual(json.code, 'ENAMETOOLONG');
 
   resp = await poteto(_(), { integrity: 'sha256-uvThdKYK8fCnhkKy2981+29g4O/6OEoSLNsi/VXPIWU=' });
-  validate(resp, { status: 200 }, { 'x-test-size': '20' });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '20' });
   text = await resp.text();
   assert.strictEqual(text, '10111213141516171819');
 
@@ -162,7 +162,7 @@ test('sequence', async () => {
   validate(resp, { status: 422 });
 
   resp = await poteto(_(), { method: 'READ' });
-  validate(resp, { status: 200 }, { 'x-test-size': '4' });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '4' });
   text = await resp.text();
   assert.strictEqual(text, 'test');
 
@@ -170,7 +170,7 @@ test('sequence', async () => {
   validate(resp, { status: 201 });
 
   resp = await poteto(_(), { method: 'READ' });
-  validate(resp, { status: 200 }, { 'x-test-size': '20' });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '20' });
   text = await resp.text();
   assert.strictEqual(text, '20212223242526272829');
 
@@ -181,7 +181,7 @@ test('sequence', async () => {
   validate(resp, { status: 422 });
 
   resp = await poteto(_(), { method: 'READ' });
-  validate(resp, { status: 200 }, { 'x-test-size': '40' });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '40' });
   text = await resp.text();
   assert.strictEqual(text, '2021222324252627282930313233343536373839');
 
@@ -191,7 +191,7 @@ test('sequence', async () => {
   assert.ok(json.includes(filename));
 
   resp = await poteto(_(), { method: 'HEAD' });
-  validate(resp, { status: 200 }, { 'x-test-size': '40' });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '40' });
   body = resp.body;
   assert.strictEqual(body, null);
   text = await resp.text();
@@ -209,7 +209,7 @@ test('sequence', async () => {
 
   {
     resp = await poteto(_(), { method: 'READ' });
-    validate(resp, { status: 200 }, { 'x-test-size': '40' });
+    validate(resp, { status: 200 }, { 'x-poteto-size': '40' });
     body = resp.body;
     const reader = body.getReader({ mode: 'byob' });
 
@@ -236,7 +236,7 @@ test('sequence', async () => {
   validate(resp, { status: 201 });
 
   resp = await poteto(_());
-  validate(resp, { status: 200 }, { 'x-test-size': '40' });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '40' });
   text = await resp.text();
   assert.strictEqual(text, '2021240414243444282930313233343536373839');
 
@@ -244,7 +244,7 @@ test('sequence', async () => {
   validate(resp, { status: 201 });
 
   resp = await poteto(_());
-  validate(resp, { status: 200 }, { 'x-test-size': '47' });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '47' });
   text = await resp.text();
   assert.strictEqual(text, '20212404142434442829303132347484950515253545556');
 
@@ -252,7 +252,7 @@ test('sequence', async () => {
   validate(resp, { status: 201 });
 
   resp = await poteto(_());
-  validate(resp, { status: 200 }, { 'x-test-size': '16' });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '16' });
   text = await resp.text();
   assert.strictEqual(text, '\x00\x00\x005758596061626');
 

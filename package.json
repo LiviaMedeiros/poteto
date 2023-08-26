@@ -3,7 +3,13 @@
   "version": "0.6.0",
   "description": "HTTP-alike fetch for FILE protocol, e.g. fetch('file:///usr/bin/node')",
   "type": "module",
-  "exports": "./index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./request": "./alt/request.mjs",
+    "./polyfill": "./alt/polyfill.mjs",
+    "./ponyfill": "./alt/ponyfill.mjs",
+    "./wrap": "./alt/wrap.mjs"
+  },
   "bin": {
     "poteto-cat": "./bin/poteto-cat.mjs",
     "poteto-dog": "./bin/poteto-dog.mjs",

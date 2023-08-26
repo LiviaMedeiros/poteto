@@ -1,6 +1,6 @@
 import { chdir } from 'node:process';
 import { fileURLToPath } from 'node:url';
-import poteto from '../index.mjs?prefix=test';
+import poteto from '../index.mjs';
 import assert from 'node:assert';
 import test from 'node:test';
 
