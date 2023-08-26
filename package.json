@@ -5,9 +5,10 @@
   "type": "module",
   "exports": {
     ".": "./index.mjs",
-    "./request": "./alt/request.mjs",
     "./polyfill": "./alt/polyfill.mjs",
     "./ponyfill": "./alt/ponyfill.mjs",
+    "./proxy": "./alt/proxy.mjs",
+    "./request": "./alt/request.mjs",
     "./wrap": "./alt/wrap.mjs"
   },
   "bin": {
