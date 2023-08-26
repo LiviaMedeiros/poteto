@@ -1,6 +1,6 @@
 {
   "name": "poteto",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "HTTP-alike fetch for FILE protocol, e.g. fetch('file:///usr/bin/node')",
   "type": "module",
   "imports": {
@@ -35,7 +35,9 @@
     "URL",
     "http",
     "fs",
-    "file"
+    "file",
+    "polyfill",
+    "ponyfill"
   ],
   "author": {
     "name": "LiviaMedeiros",
