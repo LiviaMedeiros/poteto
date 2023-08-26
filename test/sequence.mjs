@@ -41,7 +41,9 @@ const _ = ($ = filename) => [
   filename => `file:./${filename}`,
   filename => new URL(`../testdir/sequence/./${filename}`, import.meta.url),
   filename => new URL(`../testdir/sequence/./${filename}`, import.meta.url).href,
-][Math.floor(Math.random() * 6)]($);
+  filename => new Request(new URL(`../testdir/sequence/./${filename}`, import.meta.url)),
+  filename => new Request(new URL(`../testdir/sequence/./${filename}`, import.meta.url).href),
+][Math.floor(Math.random() * 8)]($);
 
 test('sequence', async () => {
   let resp;
