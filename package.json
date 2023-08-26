@@ -5,11 +5,10 @@
   "type": "module",
   "exports": {
     ".": "./index.mjs",
+    "./factory": "./alt/factory.mjs",
     "./internal": "./alt/internal.mjs",
     "./polyfill": "./alt/polyfill.mjs",
-    "./ponyfill": "./alt/ponyfill.mjs",
-    "./proxy": "./alt/proxy.mjs",
-    "./wrap": "./alt/wrap.mjs"
+    "./ponyfill": "./alt/ponyfill.mjs"
   },
   "bin": {
     "poteto-cat": "./bin/poteto-cat.mjs",
