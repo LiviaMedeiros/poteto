@@ -1,1 +1,1 @@
-export { poteto as default } from './lib/poteto.mjs';
+export { poteto as default } from '#poteto.mjs';

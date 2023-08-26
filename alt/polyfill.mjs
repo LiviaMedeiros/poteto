@@ -1,5 +1,5 @@
-import { ProxyRequest } from '../lib/request.mjs';
-import { poteto } from '../lib/poteto.mjs';
+import { ProxyRequest } from '#request.mjs';
+import { poteto } from '#poteto.mjs';
 
 globalThis.Request = ProxyRequest;
 globalThis.fetch = poteto;
