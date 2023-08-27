@@ -300,6 +300,82 @@ Right now `file` protocol is not standartized, and HTTP entities such as status 
 
 However, some projections such as `GET` => `read file`, `ENOENT` => `404 Not Found`, `Accept: application/json` => `return data as json` are intuitive enough to be implemented, so here we are.
 
+# CLI tools
+
+There are a few things in `/bin/` that work as minimalistic examples.
+
+## `poteto-cat fileurl1[, fileurl2[, ...]]`
+
+Works as [`cat(1)`](https://man7.org/linux/man-pages/man1/cat.1.html): reads files in order, concatenates and prints on the stdout.
+
+Uses `GET` method (hence, can be used with `https:` URLs as is).
+
+## `poteto-dog fileurl1[, fileurl2[, ...]]`
+
+Like `poteto-cat`, but insane: reads everything in async, and prints chunks on the stdout as fast as it can. If there are multiple files, depending on I/O, they may partially diffuse.
+
+Uses `READ` method (depending on web server, can be used with `https:` URLs, but not recommended).
+
+## `poteto-ls [dirurl1[, dirurl2[, ...]]]`
+
+Works like recursive [`ls(1)`](https://man7.org/linux/man-pages/man1/ls.1.html): reads directories recursively, and outputs as pretty-printed JSON.
+
+<details>
+<summary>Example output</summary>
+
+```json
+// poteto-ls lib testdir
+{
+ "lib/": [
+  "constants.mjs",
+  "fs.mjs",
+  "generic.mjs",
+  "http.mjs",
+  "methods.mjs",
+  "poteto.mjs",
+  "request.mjs",
+  "sri.mjs"
+ ],
+ "testdir/": [
+  ".keep",
+  {
+   "bin/": [
+    ".keep"
+   ]
+  },
+  {
+   "redirect/": [
+    ".keep",
+    "link1",
+    "link2",
+    "target"
+   ]
+  },
+  {
+   "sequence/": [
+    ".keep"
+   ]
+  }
+ ]
+}
+```
+
+</details>
+
+Uses `LIST` method, don't use on `https:` URLs.
+
+## `poteto-put fileurl`
+
+Reads data from stdin and prints to file. Overwrites existing files, can create new files, can read from interactive (keyboard) input.
+
+Uses `PUT` method, can be used with `https:` URL.
+
+## `poteto-rm fileurl1[, fileurl2[, ...]]`
+
+Works like [`rm()`](https://man7.org/linux/man-pages/man1/rm.1.html): deletes files. Not recursive, not interactive.
+
+Uses `DELETE` method, can be used with `https:` URLs.
+
 # FAQ
 
 ## Why there is `GET` and `READ`
