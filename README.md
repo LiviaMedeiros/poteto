@@ -29,6 +29,8 @@ Relative paths are resolved against CWD[^CWD].
 
 URLs that are normally supported by standard `fetch` are fetched like usual.
 
+Zero dependencies. Can work with Node.js's builtin `fetch` or with user-provided implementation.
+
 [^RelativeFileURL]: Note that unary `URL` constructor in Node.js resolves these as absolute paths, i.e. `new URL('file:file.txt').href === new URL('file:./file.txt').href === new URL('file:../file.txt').href === 'file:///file.txt'`. But if `baseURL` is provided, it's interpreted as relative path.
 
 [^CWD]: Current Working Directory
@@ -304,19 +306,19 @@ However, some projections such as `GET` => `read file`, `ENOENT` => `404 Not Fou
 
 There are a few things in `/bin/` that work as minimalistic examples.
 
-## `poteto-cat fileurl1[, fileurl2[, ...]]`
+### `poteto-cat fileurl1[, fileurl2[, ...]]`
 
 Works as [`cat(1)`](https://man7.org/linux/man-pages/man1/cat.1.html): reads files in order, concatenates and prints on the stdout.
 
 Uses `GET` method (hence, can be used with `https:` URLs as is).
 
-## `poteto-dog fileurl1[, fileurl2[, ...]]`
+### `poteto-dog fileurl1[, fileurl2[, ...]]`
 
 Like `poteto-cat`, but insane: reads everything in async, and prints chunks on the stdout as fast as it can. If there are multiple files, depending on I/O, they may partially diffuse.
 
 Uses `READ` method (depending on web server, can be used with `https:` URLs, but not recommended).
 
-## `poteto-ls [dirurl1[, dirurl2[, ...]]]`
+### `poteto-ls [dirurl1[, dirurl2[, ...]]]`
 
 Works like recursive [`ls(1)`](https://man7.org/linux/man-pages/man1/ls.1.html): reads directories recursively, and outputs as pretty-printed JSON.
 
@@ -364,13 +366,13 @@ Works like recursive [`ls(1)`](https://man7.org/linux/man-pages/man1/ls.1.html):
 
 Uses `LIST` method, don't use on `https:` URLs.
 
-## `poteto-put fileurl`
+### `poteto-put fileurl`
 
 Reads data from stdin and prints to file. Overwrites existing files, can create new files, can read from interactive (keyboard) input.
 
 Uses `PUT` method, can be used with `https:` URL.
 
-## `poteto-rm fileurl1[, fileurl2[, ...]]`
+### `poteto-rm fileurl1[, fileurl2[, ...]]`
 
 Works like [`rm()`](https://man7.org/linux/man-pages/man1/rm.1.html): deletes files. Not recursive, not interactive.
 
