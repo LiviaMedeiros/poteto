@@ -6,7 +6,9 @@
 
 # poteto
 
-`poteto` is a drop-in replacement for `fetch` (in fact, it's a `Proxy` over `globalThis.fetch`) that can work with local files over non-standartized `file:` protocol.
+`poteto` allows `fetch` to work with local files over non-standartized `file:` protocol.
+
+It can work as `fetch` polyfill (setting [`Proxy`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) over [`globalThis.fetch`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) and [`globalThis.Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request)) or as ponyfill (providing a separate drop-in replacements for them).
 
 It can understand:
 
@@ -134,7 +136,7 @@ import poteto from 'poteto';
 {
   const response = await poteto('https://github.com/LiviaMedeiros/poteto', {
     headers: {
-        'User-Agent': 'Poteto',
+      'User-Agent': 'Poteto',
     },
   });
 }
@@ -211,6 +213,14 @@ If there is an error and it's known, returned promise is resolved with `Response
 The headers contain error information. If `Accept` header is `application/json`, the body will contain serialized error as JSON; otherwise, it will contain its `.message`.
 
 If the error is unknown, returned promise is rejected with it.
+
+# Redirect handling
+
+If `request.redirect === 'follow'` (default), symlinks will be quietly resolved.
+
+If `request.redirect === 'error'`, returned promise will be rejected with `TypeError`.
+
+If `request.redirect === 'manual'`, returned promise will be resolved with `HTTP 302` response with target URL in `Location` header.
 
 # Subpaths
 
