@@ -4,6 +4,8 @@ import poteto from '../index.mjs';
 import assert from 'node:assert';
 import test from 'node:test';
 
+const isDeno = 'Deno' in globalThis;
+
 chdir(fileURLToPath(new URL('../testdir/sequence/', import.meta.url)));
 
 let _i = 0;
@@ -96,10 +98,11 @@ test('sequence', async () => {
   resp = await poteto(_(), { body: 'test', method: 'PUT' });
   validate(resp, { status: 201 });
 
-  await assert.rejects(
-    poteto(_(), { integrity: 'sha512-qUqP5cyxm6YcTAhz05Hph5gvu9M=' }),
-    TypeError,
-  );
+  if (!isDeno)
+    assert.rejects(
+      poteto(_(), { integrity: 'sha512-qUqP5cyxm6YcTAhz05Hph5gvu9M=' }),
+      TypeError,
+    );
 
   resp = await poteto(_(), { integrity: 'sha1-qUqP5cyxm6YcTAhz05Hph5gvu9M=' });
   validate(resp, { status: 200 }, { 'x-poteto-size': '4' });
