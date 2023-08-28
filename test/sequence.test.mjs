@@ -83,7 +83,7 @@ test('sequence', async () => {
   resp = await poteto(_(), { body: 'test', method: 'PUT' });
   validate(resp, { status: 201 });
 
-  assert.rejects(
+  await assert.rejects(
     poteto(_(), { integrity: 'sha512-qUqP5cyxm6YcTAhz05Hph5gvu9M=' }),
     TypeError,
   );
@@ -202,9 +202,9 @@ test('sequence', async () => {
   resp = await poteto(_(), { method: 'OPTIONS' });
   validate(resp, { status: 501 });
 
-  assert.rejects(poteto(_(), { method: 'CONNECT' }), TypeError);
-  assert.rejects(poteto(_(), { method: 'TRACE' }), TypeError);
-  assert.rejects(poteto(_(), { method: 'TRACK' }), TypeError);
+  await assert.rejects(poteto(_(), { method: 'CONNECT' }), TypeError);
+  await assert.rejects(poteto(_(), { method: 'TRACE' }), TypeError);
+  await assert.rejects(poteto(_(), { method: 'TRACK' }), TypeError);
 
   resp = await poteto(_(), { method: 'METHODNOTEXISTS' });
   validate(resp, { status: 405 });
