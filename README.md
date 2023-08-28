@@ -1,6 +1,5 @@
 [![GPLv3 License](https://img.shields.io/github/license/LiviaMedeiros/poteto)](https://github.com/LiviaMedeiros/poteto/blob/HEAD/LICENSE)
 [![npm](https://img.shields.io/npm/v/poteto.svg)](https://npmjs.com/package/poteto)
-![npm bundle size](https://img.shields.io/bundlephobia/min/poteto)
 [![CI](https://github.com/LiviaMedeiros/poteto/actions/workflows/github-ci.yml/badge.svg)](https://github.com/LiviaMedeiros/poteto/actions/workflows/github-ci.yml)
 [![lint](https://github.com/LiviaMedeiros/poteto/actions/workflows/github-lint.yml/badge.svg)](https://github.com/LiviaMedeiros/poteto/actions/workflows/github-lint.yml)
 
