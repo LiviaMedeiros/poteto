@@ -3,9 +3,6 @@
   "version": "0.7.4",
   "description": "HTTP-alike fetch for FILE protocol, e.g. fetch('file:///usr/bin/node')",
   "type": "module",
-  "imports": {
-    "#*": "./lib/*"
-  },
   "exports": {
     ".": "./index.mjs",
     "./factory": "./alt/factory.mjs",

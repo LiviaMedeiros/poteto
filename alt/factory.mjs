@@ -1,1 +1,1 @@
-export { proxify, wrap } from '#poteto.mjs';
+export { proxify, wrap } from '../lib/poteto.mjs';

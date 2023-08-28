@@ -1,1 +1,1 @@
-export { methods, execute } from '#poteto.mjs';
+export { methods, execute } from '../lib/poteto.mjs';
