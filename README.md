@@ -206,7 +206,15 @@ Returns `HTTP 201`.
 
 # Response headers
 
-Poteto-specific headers are be prefixed with `X-Poteto-` prefix. For example, to get filesize, look for `X-Poteto-Size` header.
+The following HTTP headers are supported:
+
+- `Server` with fixed value `poteto`
+- `Accept-Ranges` with fixed value `bytes`
+- `Date` with RFC 7231 date of forming the response headers
+- `Content-Length` with filesize in bytes if applicable
+- `Last-Modified` with RFC 7231 date of last file modification if applicable
+
+Poteto-specific headers are be prefixed with `X-Poteto-` prefix. For example, filesize can be accessed via `X-Poteto-Size` header.
 
 # Error handling
 
