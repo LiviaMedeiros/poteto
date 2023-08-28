@@ -7,12 +7,25 @@ import test from 'node:test';
 chdir(fileURLToPath(new URL('../testdir/sequence/', import.meta.url)));
 
 let _i = 0;
-async function* bodygen(n = 10, pause = 9) {
-  while (n--) {
-    yield `${_i++}`;
-    await new Promise(_ => setTimeout(_, pause));
-  }
-}
+const textEncoder = new TextEncoder();
+const getNumber = () => [
+  () => `${_i++}`,
+  () => textEncoder.encode(`${_i++}`),
+][Math.floor(Math.random() * 2)]();
+
+const bodygen = (n = 10, pause = 9) => {
+  let $ = null;
+  return new ReadableStream({
+    start: _ =>
+      $ = setInterval(
+        () => n--
+          ? _.enqueue(getNumber())
+          : (_.close(), clearInterval($)),
+        pause
+      ),
+    cancel: () => clearInterval($),
+  });
+};
 
 const validate = (actual, expected = {}, headers = {}) => {
   assert.ok(actual instanceof Response, `${actual} is not Response`);
@@ -248,7 +261,7 @@ test('sequence', async () => {
   resp = await poteto(_());
   validate(resp, { status: 200 }, { 'x-poteto-size': '47' });
   text = await resp.text();
-  assert.strictEqual(text, '20212404142434442829303132347484950515253545556');
+  assert.strictEqual(text, '20212404142434442829303132346474849505152535455');
 
   resp = await poteto(_(), { method: 'PUT', body: bodygen(), headers: { 'Range': 'bytes=3-15' }, duplex: 'half' });
   validate(resp, { status: 201 });
@@ -256,7 +269,7 @@ test('sequence', async () => {
   resp = await poteto(_());
   validate(resp, { status: 200 }, { 'x-poteto-size': '16' });
   text = await resp.text();
-  assert.strictEqual(text, '\x00\x00\x005758596061626');
+  assert.strictEqual(text, '\x00\x00\x005657585960616');
 
   await new Promise(_ => setTimeout(_, 9));
 
