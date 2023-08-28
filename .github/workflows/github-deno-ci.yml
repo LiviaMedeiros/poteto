@@ -1,4 +1,4 @@
-name: CI
+name: Deno CI
 
 on:
   push:
@@ -13,11 +13,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        version: [latest]
+        version: [canary]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: denoland/setup-deno@v1
         with:
           node-version: ${{ matrix.version }}
-      - run: npm run test
+      - run: deno test --allow-read --allow-write
