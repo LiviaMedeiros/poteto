@@ -1,5 +1,5 @@
 env:
-  es2021: true
+  es2024: true
   node: true
 extends: eslint:recommended
 parserOptions:
@@ -149,3 +149,5 @@ rules:
     - error
   valid-typeof:
     - error
+  no-sparse-arrays:
+    - off
