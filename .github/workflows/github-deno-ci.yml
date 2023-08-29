@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  ci:
+  deno-ci:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
