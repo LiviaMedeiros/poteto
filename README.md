@@ -200,7 +200,7 @@ Returns `HTTP 200` and file body.
 
 ### `WRITE`
 
-Writes request body to file in `w` mode. See [Why there is `PUT` and `WRITE`](#why-there-is-put-and-write) or ignore.
+Alias to [`PUT`](#post-and-put).
 
 Returns `HTTP 201`.
 
@@ -402,9 +402,7 @@ Also `GET` supports `Range` header and SRI[^SRI], and might support other featur
 
 ## Why there is `PUT` and `WRITE`
 
-Just to mirror `GET` and `READ`. They are different in the same way, but there shouldn't be any benefits in using `WRITE`.
-
-Also `PUT` supports `Range` header which allows it to write in user-defined file positions.
+Just to mirror `GET` and `READ`. `PUT` is preferable.
 
 ## Why is it called like that
 
