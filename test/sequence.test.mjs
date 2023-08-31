@@ -13,7 +13,13 @@ const textEncoder = new TextEncoder();
 const getNumber = () => [
   () => `${_i++}`,
   () => textEncoder.encode(`${_i++}`),
-][Math.floor(Math.random() * 2)]();
+  () => `${_i}`.length % 2
+    ? textEncoder.encode(`${_i++}`)
+    : new Uint16Array(textEncoder.encode(`${_i++}`).buffer),
+  () => `${_i}`.length % 2
+    ? textEncoder.encode(`${_i++}`)
+    : new Int16Array(textEncoder.encode(`${_i++}`).buffer),
+][Math.floor(Math.random() * 4)]();
 
 const bodygen = (n = 10, pause = 9) => {
   let $ = null;
