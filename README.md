@@ -117,6 +117,16 @@ import poteto from 'poteto';
   const mtimeTemporal = new Temporal.Instant(headers.get('X-Poteto-MtimeNs'));
 }
 
+// make conditional request
+{
+  const response = await poteto('file:///var/log/auth.log', {
+    headers: {
+      'If-Modified-Since': 'Wed, 07 Aug 2019 10:00:12 GMT',
+    },
+  });
+  const isNotModified = response.status === 304;
+}
+
 // get symlink destination using manual redirect
 {
   const { headers } = await poteto('/etc/mtab', { redirect: 'manual' });
@@ -150,9 +160,9 @@ import poteto from 'poteto';
 
 ### `GET`
 
-Reads file. Supports [`Range`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range) header and SRI[^SRI].
+Reads file. Supports [`If-Modified-Since`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Modified-Since), [`Range`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range), and SRI[^SRI].
 
-Returns `HTTP 200` or `HTTP 206`, and file body.
+Returns `HTTP 200`, `HTTP 206` or `HTTP 304`; and file body.
 
 ### `HEAD`
 
