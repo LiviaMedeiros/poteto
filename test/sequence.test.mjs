@@ -81,7 +81,7 @@ test('sequence', async t => {
   validate(resp, { status: 404 }, { 'x-poteto-code': 'ENOENT' });
 
   resp = await poteto(_(), { method: 'HEAD' });
-  validate(resp, { status: 404 }, { 'x-poteto-code': 'ENOENT' });
+  validate(resp, { status: 404, body: null }, { 'x-poteto-code': 'ENOENT' });
   body = resp.body;
   assert.strictEqual(body, null);
   text = await resp.text();
@@ -102,7 +102,7 @@ test('sequence', async t => {
   validate(resp, { status: 404 });
 
   resp = await poteto(_(), { body: 'test', method: 'PUT' });
-  validate(resp, { status: 201 });
+  validate(resp, { status: 201, body: null });
 
   // integrity is ignored by Request constructor
   if (!isDeno)
@@ -117,7 +117,7 @@ test('sequence', async t => {
   assert.strictEqual(text, 'test');
 
   resp = await poteto(_(), { body: bodygen(), method: 'PUT', duplex: 'half' });
-  validate(resp, { status: 201 });
+  validate(resp, { status: 201, body: null });
 
   resp = await poteto(_(), { integrity: 'sha384-kK5THyTkhpeQSk0ChvNUxQo1DrtsK578si9xyWzq7/wRxglenKDfDsML9oXc8uXl' });
   validate(resp, { status: 200 }, { 'x-poteto-size': '10' });
@@ -154,13 +154,13 @@ test('sequence', async t => {
   validate(resp, { status: 416 });
 
   resp = await poteto(_(), { method: 'DELETE' });
-  validate(resp, { status: 204 });
+  validate(resp, { status: 204, body: null });
 
   resp = await poteto(_(), { headers: { 'Range': 'bytes=1-2,4-5,7-7'}, integrity: 'sha1-db3ms9F0w5Sozo0ZTj6GiLCmM+A=' });
   validate(resp, { status: 404 });
 
   resp = await poteto(_(), { body: 'test', method: 'WRITE' });
-  validate(resp, { status: 201 });
+  validate(resp, { status: 201, body: null });
 
   resp = await poteto(_(), { method: 'WRITE' });
   validate(resp, { status: 422 });
@@ -171,7 +171,7 @@ test('sequence', async t => {
   assert.strictEqual(text, 'test');
 
   resp = await poteto(_(), { body: bodygen(), method: 'WRITE', duplex: 'half' });
-  validate(resp, { status: 201 });
+  validate(resp, { status: 201, body: null });
 
   resp = await poteto(`${_()}${'a'.repeat(2 ** 16)}`, { headers: { 'Accept': 'application/json' } });
   validate(resp, { status: 400 }, { 'x-poteto-code': 'ENAMETOOLONG' });
@@ -184,10 +184,10 @@ test('sequence', async t => {
   assert.strictEqual(text, '10111213141516171819');
 
   resp = await poteto(_(), { body: 'test', method: 'PUT' });
-  validate(resp, { status: 201 });
+  validate(resp, { status: 201, body: null });
 
   resp = await poteto(_(), { method: 'PUT' });
-  validate(resp, { status: 422 });
+  validate(resp, { status: 422, body: null });
 
   resp = await poteto(_(), { method: isDeno ? 'GET' : 'READ' });
   validate(resp, { status: 200 }, { 'x-poteto-size': '4' });
@@ -197,7 +197,7 @@ test('sequence', async t => {
   const pastDate = new Date();
 
   resp = await poteto(_(), { body: bodygen(), method: 'WRITE', duplex: 'half' });
-  validate(resp, { status: 201 });
+  validate(resp, { status: 201, body: null });
 
   resp = await poteto(_(), { method: isDeno ? 'GET' : 'READ' });
   validate(resp, { status: 200 }, { 'x-poteto-size': '20' });
@@ -210,15 +210,15 @@ test('sequence', async t => {
   assert.strictEqual(text, '20212223242526272829');
 
   resp = await poteto(_(), { headers: { 'If-Modified-Since': new Date(+new Date() + 9e3).toUTCString() } });
-  validate(resp, { status: 304 }, { 'Content-Length': '20' });
+  validate(resp, { status: 304, body: null }, { 'Content-Length': '20' });
 
   // fs.fileAppend doesn't work with ReadableStream
   await t.test('further sequence', { skip: isDeno && 'not supported in Deno yet' }, async () => {
     resp = await poteto(_(), { body: bodygen(), method: 'APPEND', duplex: 'half' });
-    validate(resp, { status: 201 });
+    validate(resp, { status: 201, body: null });
 
     resp = await poteto(_(), { method: 'APPEND', duplex: 'half' });
-    validate(resp, { status: 422 });
+    validate(resp, { status: 422, body: null });
 
     resp = await poteto(_(), { method: isDeno ? 'GET' : 'READ' });
     validate(resp, { status: 200 }, { 'x-poteto-size': '40' });
@@ -238,14 +238,14 @@ test('sequence', async t => {
     assert.strictEqual(text, '');
 
     resp = await poteto(_(), { method: 'OPTIONS' });
-    validate(resp, { status: 501 });
+    validate(resp, { status: 501, body: null });
 
     await assert.rejects(poteto(_(), { method: 'CONNECT' }), TypeError);
     await assert.rejects(poteto(_(), { method: 'TRACE' }), TypeError);
     await assert.rejects(poteto(_(), { method: 'TRACK' }), TypeError);
 
     resp = await poteto(_(), { method: 'METHODNOTEXISTS' });
-    validate(resp, { status: 405 });
+    validate(resp, { status: 405, body: null });
 
     {
       resp = await poteto(_(), { method: 'READ' });
@@ -273,7 +273,7 @@ test('sequence', async t => {
     }
 
     resp = await poteto(_(), { method: 'POST', body: bodygen(999), headers: { 'Range': 'bytes=5-15' }, duplex: 'half' });
-    validate(resp, { status: 201 });
+    validate(resp, { status: 201, body: null });
 
     resp = await poteto(_());
     validate(resp, { status: 200 }, { 'x-poteto-size': '40' });
@@ -281,7 +281,7 @@ test('sequence', async t => {
     assert.strictEqual(text, '2021240414243444282930313233343536373839');
 
     resp = await poteto(_(), { method: 'POST', body: bodygen(), headers: { 'Range': 'bytes=27-' }, duplex: 'half' });
-    validate(resp, { status: 201 });
+    validate(resp, { status: 201, body: null });
 
     resp = await poteto(_());
     validate(resp, { status: 200 }, { 'x-poteto-size': '47' });
@@ -289,7 +289,7 @@ test('sequence', async t => {
     assert.strictEqual(text, '20212404142434442829303132346474849505152535455');
 
     resp = await poteto(_(), { method: 'PUT', body: bodygen(), headers: { 'Range': 'bytes=3-15' }, duplex: 'half' });
-    validate(resp, { status: 201 });
+    validate(resp, { status: 201, body: null });
 
     resp = await poteto(_());
     validate(resp, { status: 200 }, { 'x-poteto-size': '16' });
