@@ -194,6 +194,8 @@ test('sequence', async t => {
   text = await resp.text();
   assert.strictEqual(text, 'test');
 
+  const pastDate = new Date();
+
   resp = await poteto(_(), { body: bodygen(), method: 'WRITE', duplex: 'half' });
   validate(resp, { status: 201 });
 
@@ -201,6 +203,14 @@ test('sequence', async t => {
   validate(resp, { status: 200 }, { 'x-poteto-size': '20' });
   text = await resp.text();
   assert.strictEqual(text, '20212223242526272829');
+
+  resp = await poteto(_(), { headers: { 'If-Modified-Since': new Date(+pastDate - 9e3).toUTCString() } });
+  validate(resp, { status: 200 }, { 'Content-Length': '20' });
+  text = await resp.text();
+  assert.strictEqual(text, '20212223242526272829');
+
+  resp = await poteto(_(), { headers: { 'If-Modified-Since': new Date(+new Date() + 9e3).toUTCString() } });
+  validate(resp, { status: 304 }, { 'Content-Length': '20' });
 
   // fs.fileAppend doesn't work with ReadableStream
   await t.test('further sequence', { skip: isDeno && 'not supported in Deno yet' }, async () => {
