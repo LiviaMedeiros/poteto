@@ -159,8 +159,7 @@ test('sequence', async t => {
   resp = await poteto(_(), { headers: { 'Range': 'bytes=1-2,4-5,7-7'}, integrity: 'sha1-db3ms9F0w5Sozo0ZTj6GiLCmM+A=' });
   validate(resp, { status: 404 });
 
-  // no fd.createWriteStream but it should be done with WritableStream
-  resp = await poteto(_(), { body: 'test', method: isDeno ? 'PUT' : 'WRITE' });
+  resp = await poteto(_(), { body: 'test', method: 'WRITE' });
   validate(resp, { status: 201 });
 
   resp = await poteto(_(), { method: 'WRITE' });
@@ -171,7 +170,7 @@ test('sequence', async t => {
   text = await resp.text();
   assert.strictEqual(text, 'test');
 
-  resp = await poteto(_(), { body: bodygen(), method: isDeno ? 'PUT' : 'WRITE', duplex: 'half' });
+  resp = await poteto(_(), { body: bodygen(), method: 'WRITE', duplex: 'half' });
   validate(resp, { status: 201 });
 
   resp = await poteto(`${_()}${'a'.repeat(2 ** 16)}`, { headers: { 'Accept': 'application/json' } });
@@ -195,7 +194,7 @@ test('sequence', async t => {
   text = await resp.text();
   assert.strictEqual(text, 'test');
 
-  resp = await poteto(_(), { body: bodygen(), method: isDeno ? 'PUT' : 'WRITE', duplex: 'half' });
+  resp = await poteto(_(), { body: bodygen(), method: 'WRITE', duplex: 'half' });
   validate(resp, { status: 201 });
 
   resp = await poteto(_(), { method: isDeno ? 'GET' : 'READ' });
