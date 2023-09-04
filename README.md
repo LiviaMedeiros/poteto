@@ -227,7 +227,7 @@ The following HTTP headers are supported:
 
 Poteto-specific headers are be prefixed with `X-Poteto-` prefix. For example, filesize can be accessed via `X-Poteto-Size` header.
 
-[^ETag]: weak [`ETag`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag) is calculated from device id, inode, filesize and last modification time. Length is variable.
+[^ETag]: Weak [`ETag`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag) is calculated from device id, inode, filesize and last modification time. Length is variable.
 
 # Error handling
 
