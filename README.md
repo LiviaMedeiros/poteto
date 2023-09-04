@@ -117,7 +117,7 @@ import poteto from 'poteto';
   const mtimeTemporal = new Temporal.Instant(headers.get('X-Poteto-MtimeNs'));
 }
 
-// make conditional request
+// make conditional request (also supports ETag and If-None-Match)
 {
   const response = await poteto('file:///var/log/auth.log', {
     headers: {
@@ -160,9 +160,9 @@ import poteto from 'poteto';
 
 ### `GET`
 
-Reads file. Supports [`If-Modified-Since`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Modified-Since), [`Range`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range), and SRI[^SRI].
+Reads file. Supports [`If-Modified-Since`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Modified-Since), [`If-Unmodified-Since`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Unmodified-Since), [`If-None-Match`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match), [`If-Match`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Match), [`Range`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range), and SRI[^SRI].
 
-Returns `HTTP 200`, `HTTP 206` or `HTTP 304`; and file body.
+Returns `HTTP 200` or `HTTP 206` and file body; or `HTTP 304`.
 
 ### `HEAD`
 
@@ -223,8 +223,11 @@ The following HTTP headers are supported:
 - `Date` with RFC 7231 date of forming the response headers
 - `Content-Length` with filesize in bytes if applicable
 - `Last-Modified` with RFC 7231 date of last file modification if applicable
+- `ETag` with weak entity tag if applicable [^ETag]
 
 Poteto-specific headers are be prefixed with `X-Poteto-` prefix. For example, filesize can be accessed via `X-Poteto-Size` header.
+
+[^ETag]: weak [`ETag`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag) is calculated from device id, inode, filesize and last modification time. Length is variable.
 
 # Error handling
 
