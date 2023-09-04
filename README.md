@@ -216,7 +216,7 @@ Returns `HTTP 201`.
 
 # Response headers
 
-The following HTTP headers are supported:
+The following HTTP response headers are supported:
 
 - `Server` with fixed value `poteto`
 - `Accept-Ranges` with fixed value `bytes`
@@ -255,7 +255,7 @@ Subpath imports allow to add `poteto` to the project in different ways.
 import 'poteto/polyfill';
 
 await fetch('/dev/null');
-(new Request('/dev/null')).url === 'file:///dev/null'
+new Request('/dev/null').url === 'file:///dev/null';
 ```
 Replaces `globalThis.fetch` and `globalThis.Request` with proxies.
 Constructing `Request` with applicable URL results in regular `Request` instance but with fully-resolved `file:` URL.
