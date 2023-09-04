@@ -67,10 +67,12 @@ const _ = ($ = filename) => [
 ][Math.floor(Math.random() * 8)]($);
 
 test('sequence', async t => {
+  const pastDate = new Date();
   let resp;
   let text;
   let json;
   let body;
+  let etag;
 
   resp = await poteto('', { method: 'LIST' });
   validate(resp, { status: 200 }, { 'content-type': 'application/json' });
@@ -115,6 +117,8 @@ test('sequence', async t => {
   validate(resp, { status: 200 }, { 'x-poteto-size': '4' });
   text = await resp.text();
   assert.strictEqual(text, 'test');
+  etag = resp.headers.get('ETag');
+  assert.match(etag, /^W\/"\w+-\w+-4-\w+"$/);
 
   resp = await poteto(_(), { body: bodygen(), method: 'PUT', duplex: 'half' });
   validate(resp, { status: 201, body: null });
@@ -123,6 +127,29 @@ test('sequence', async t => {
   validate(resp, { status: 200 }, { 'x-poteto-size': '10' });
   text = await resp.text();
   assert.strictEqual(text, '0123456789');
+  assert.notStrictEqual(resp.headers.get('ETag'), etag);
+  etag = resp.headers.get('ETag');
+  assert.match(etag, /^W\/"\w+-\w+-a-\w+"$/);
+
+  resp = await poteto(_(), { headers: { 'If-None-Match': 'W/"abc-def-mep-ope"' } });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '10' });
+  text = await resp.text();
+  assert.strictEqual(text, '0123456789');
+  assert.strictEqual(resp.headers.get('ETag'), etag);
+
+  resp = await poteto(_(), { headers: { 'If-None-Match': etag } });
+  validate(resp, { status: 304, body: null });
+  assert.strictEqual(resp.headers.get('ETag'), etag);
+
+  resp = await poteto(_(), { headers: { 'If-Match': 'W/"abc-def-mep-ope"' } });
+  validate(resp, { status: 412, body: null }, { 'x-poteto-size': '10' });
+  assert.strictEqual(resp.headers.get('ETag'), etag);
+
+  resp = await poteto(_(), { headers: { 'If-Match': etag } });
+  validate(resp, { status: 200 }, { 'x-poteto-size': '10' });
+  text = await resp.text();
+  assert.strictEqual(text, '0123456789');
+  assert.strictEqual(resp.headers.get('ETag'), etag);
 
   // TODO: investigate issue with fd.read()
   if (!isDeno) {
@@ -194,8 +221,6 @@ test('sequence', async t => {
   text = await resp.text();
   assert.strictEqual(text, 'test');
 
-  const pastDate = new Date();
-
   resp = await poteto(_(), { body: bodygen(), method: 'WRITE', duplex: 'half' });
   validate(resp, { status: 201, body: null });
 
@@ -211,6 +236,14 @@ test('sequence', async t => {
 
   resp = await poteto(_(), { headers: { 'If-Modified-Since': new Date(+new Date() + 9e3).toUTCString() } });
   validate(resp, { status: 304, body: null }, { 'Content-Length': '20' });
+
+  resp = await poteto(_(), { headers: { 'If-Unmodified-Since': new Date(+pastDate - 9e3).toUTCString() } });
+  validate(resp, { status: 412, body: null });
+
+  resp = await poteto(_(), { headers: { 'If-Unmodified-Since': new Date(+new Date() + 9e3).toUTCString() } });
+  validate(resp, { status: 200 }, { 'Content-Length': '20' });
+  text = await resp.text();
+  assert.strictEqual(text, '20212223242526272829');
 
   // fs.fileAppend doesn't work with ReadableStream
   await t.test('further sequence', { skip: isDeno && 'not supported in Deno yet' }, async () => {
