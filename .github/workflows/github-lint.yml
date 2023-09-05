@@ -12,6 +12,10 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: npm install
       - run: npm run lint
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: canary
+      - run: deno lint
