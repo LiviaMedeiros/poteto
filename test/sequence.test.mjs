@@ -21,11 +21,10 @@ const getNumber = () => [
     : new Int16Array(textEncoder.encode(`${_i++}`).buffer),
 ][Math.floor(Math.random() * 4)]();
 
-const bodygen = (n = 10, pause = 9) => {
-  let $ = null;
-  return new ReadableStream({
+const bodygen = (n = 10, pause = 9, $ = null) =>
+  new ReadableStream({
     start: _ =>
-      $ = setInterval(
+      $ ??= setInterval(
         () => n--
           ? _.enqueue(getNumber())
           : (_.close(), clearInterval($)),
@@ -33,7 +32,6 @@ const bodygen = (n = 10, pause = 9) => {
       ),
     cancel: () => clearInterval($),
   });
-};
 
 const validate = (actual, expected = {}, headers = {}) => {
   assert.ok(actual instanceof Response, `${actual} is not Response`);
