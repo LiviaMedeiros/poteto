@@ -1,7 +1,8 @@
 #!/usr/bin/env node
+import { argv } from 'node:process';
 import poteto from '../index.mjs?persistCwd=true';
 
-const [,, ...urls] = process.argv;
+const [,, ...urls] = argv;
 
 // deletes file
 // not recursive

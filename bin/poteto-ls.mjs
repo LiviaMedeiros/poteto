@@ -1,10 +1,11 @@
 #!/usr/bin/env node
+import { argv, stdout } from 'node:process';
 import poteto from '../index.mjs?persistCwd=true';
 
 const printResponse = $ =>
-  process.stdout.write(JSON.stringify(Object.fromEntries($), null, 1));
+  stdout.write(JSON.stringify(Object.fromEntries($), null, 1));
 
-const [,, ...urls] = process.argv;
+const [,, ...urls] = argv;
 
 const ls = async (_ = '.') =>
   poteto(`${_}`, { method: 'LIST' }).then($ =>

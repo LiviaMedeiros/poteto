@@ -1,4 +1,5 @@
 import { execPath, platform } from 'node:process';
+import { Buffer } from 'node:buffer';
 import assert from 'node:assert';
 import test from 'node:test';
 import { execFileSync } from 'node:child_process';
